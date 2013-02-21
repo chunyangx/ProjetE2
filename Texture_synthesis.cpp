@@ -14,10 +14,11 @@ int main(int argc, char** argv)
     return -1;
   }
 
-  namedWindow( "Display Image", CV_WINDOW_AUTOSIZE );
+  namedWindow( "Display Image", 256);
   imshow( "Display Image", image );
 
-  waitKey(0);
+  Mat syn_image(256,256, CV_8UC3);
+  waitKey();
 
   return 0;
 
