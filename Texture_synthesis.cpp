@@ -1,7 +1,17 @@
 #include <cv.h>
 #include <highgui.h>
+#include <iostream>
+#include <cmath>
 
 using namespace cv;
+
+double diff(const Vec3b& pa, const Vec3b& pb)
+{
+  double res = 0;
+  for(int i = 0; i < 3; ++i)
+    res += (pa[i]-pb[i])*(pa[i]-pb[i]);
+  return sqrt(res);
+}
 
 int main(int argc, char** argv)
 {
@@ -14,12 +24,13 @@ int main(int argc, char** argv)
     return -1;
   }
 
-  namedWindow( "Display Image", 256);
-  imshow( "Display Image", image );
+  namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
 
-  Mat syn_image(256,256, CV_8UC3);
+  Mat_<Vec3b> img(64, 64);
+  imshow("Disply Image, syn_image", img);
   waitKey();
 
+  img(0,0) = Vec3b(0,255,0);
   return 0;
 
 }
