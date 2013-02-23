@@ -26,4 +26,7 @@ void nearestNH(const vector<Point>& p, const int& w, const Mat& imagea, const Ma
 // Put in gridPoints the points of a grid of width w/4 in image.
 void grid(vector<Point>& gridPoints, const int& w, const Mat& image);
 
+// Generate random neighborhoods for initialization.
+void randomNH(vector<Point>& randomPoints, const int& w, const Mat& image, const vector<Point>& p);
+
 

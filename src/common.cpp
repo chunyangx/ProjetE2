@@ -2,6 +2,10 @@
 #include <cmath>
 #include <vector>
 
+#include <stdio.h>      // For NULL
+#include <stdlib.h>     // For random numbers    
+#include <time.h>       // For random seeds
+
 using namespace cv;
 using namespace std;
 
@@ -69,5 +73,20 @@ void grid(vector<Point>& gridPoints, const int& w, const Mat& image)
         Point xy(x,y);
         gridPoints.push_back(xy);
     }
+  }
+}
+
+void randomNH(vector<Point>& randomPoints, const int& w, const Mat& image, const vector<Point>& p)
+{
+  randomPoints.clear();
+  srand (time(NULL));
+  int min_x = w/2;
+  int min_y = w/2;
+  int max_x = image.rows-1-w/2;
+  int max_y = image.cols-1-w/2; 
+
+  for(int k=0;k<p.size();++k){
+    Point xy(rand()%(max_x-min_x)+min_x, rand()%(max_y-min_y)+min_y);
+    randomPoints.push_back(xy);
   }
 }

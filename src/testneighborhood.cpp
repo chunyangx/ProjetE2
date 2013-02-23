@@ -38,8 +38,14 @@ int main(int argc, char** argv)
 
   vector<Point> pixel_grid;
   grid(pixel_grid, 100, image);
-  nearestNH(pixel_grid, 5, image, imagebis,nn_vect);
-  printf("done\n");
+  /*nearestNH(pixel_grid, 5, image, imagebis,nn_vect);
+  printf("done\n");*/
 
+  vector<Point> pixel_random;
+  randomNH(pixel_random, 8, imagebis,pixel_grid);
+  for(int k=0; k<pixel_random.size(); ++k)
+  {
+    printf("Neighborhood of coordinates : %i %i\n",pixel_random[k].x,pixel_random[k].y);
+  }
 
 }
