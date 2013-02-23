@@ -23,4 +23,7 @@ Point nearestNH(const Point& p, const int& w, const Mat& imagea, const Mat& imag
 // Find the nearest neighborhoods in imageb of all the neighborhood in imagea of vector p.
 void nearestNH(const vector<Point>& p, const int& w, const Mat& imagea, const Mat& imageb, vector<Point>& nNH);
 
+// Put in gridPoints the points of a grid of width w/4 in image.
+void grid(vector<Point>& gridPoints, const int& w, const Mat& image);
+
 

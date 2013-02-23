@@ -55,7 +55,19 @@ Point nearestNH(const Point& p, const int& w, const Mat& imagea, const Mat& imag
 
 void nearestNH(const vector<Point>& p, const int& w, const Mat& imagea, const Mat& imageb, vector<Point>& nNH)
 {
+  nNH.clear();
   for(int k=0;k<p.size();++k){
     nNH.push_back(nearestNH(p[k],w,imagea,imageb));
+  }
+}
+
+void grid(vector<Point>& gridPoints, const int& w, const Mat& image)
+{
+  gridPoints.clear();
+  for(int x=w/2;x<image.rows-w/2;x+=w/4){
+    for(int y=w/2;y<image.cols-w/2;y+=w/4){
+        Point xy(x,y);
+        gridPoints.push_back(xy);
+    }
   }
 }

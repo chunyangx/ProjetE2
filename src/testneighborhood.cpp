@@ -36,5 +36,10 @@ int main(int argc, char** argv)
   printf("Nearest neighborhood of coordinates : %i %i\n",nn_vect[0].x,nn_vect[0].y);
   printf("Nearest neighborhood of coordinates : %i %i\n",nn_vect[1].x,nn_vect[1].y);
 
+  vector<Point> pixel_grid;
+  grid(pixel_grid, 100, image);
+  nearestNH(pixel_grid, 5, image, imagebis,nn_vect);
+  printf("done\n");
+
 
 }
