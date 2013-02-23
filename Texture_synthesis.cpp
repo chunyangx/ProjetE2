@@ -6,6 +6,7 @@
 using namespace cv;
 using namespace std;
 
+
 double diff(const Vec3b& pa, const Vec3b& pb)
 {
   double res = 0;
