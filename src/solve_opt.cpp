@@ -4,10 +4,11 @@
 
 using namespace std;
 using namespace alglib;
+using namespace cv;
 
-void solve_opt(const vector<Point>& z, const vector<Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width)
+void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat_<unsigned char>& ref_image, Mat_<unsigned char>& image, int width)
 {
-  // Channel independence
+
   if (z.size() != x.size())
     throw invalid_argument("size x != size z");
 
@@ -18,12 +19,17 @@ void solve_opt(const vector<Point>& z, const vector<Point>& x, const cv::Mat& re
   |
   */
 
-  real_2d_array fmatrix;
-  fmatrix.setlength(image.size().width, image.size().width);
+  int nb_pixels = image.size().width*image.size().height;
+  real_2d_array A;
+  A.setlength(nb_pixels, nb_pixels);
+
+  real_1d_array b;
+  b.setlength(nb_pixels);
 
   for(int i = 0; i < (int)z.size(); ++i)
   {
-        
+    // Channel independence
+               
   }  
 }
 

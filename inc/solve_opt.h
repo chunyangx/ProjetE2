@@ -9,6 +9,6 @@
 // R,G,B independent
 
 // Solve energy optimization problem and render image
-void solve_opt(const std::vector<Point>& z, const Mat& ref_image, Mat& render_image, int width);
+void solve_opt(const std::vector<cv::Point>& z, const vector<cv::Point>& x, const Mat& ref_image, Mat& render_image, int width);
 
 

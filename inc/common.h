@@ -5,17 +5,20 @@
 #include <cv.h>
 #include <vector>
 
-class PointTexture
+/*
+class EPoint
 {
 public:
-  PointTexture(int x, int y);
-  int x() const {return _x;}
-  int y() const {return _y;}
+  EPoint(int x, int y): _x(x), _y(y) {}
+  int x(){return _x;}
+  int y(){return _y;}
+>>>>>>> fix call
 private:
   // Coordinates
   int _x;
   int _y;
 };
+*/
 
 // Difference of pixels
 double diff(const cv::Vec3b& pa, const cv::Vec3b& pb);

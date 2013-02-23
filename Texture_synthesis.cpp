@@ -37,5 +37,7 @@ int main(int argc, char** argv)
   cout << img.size().width << endl;
   cout << img.size().height << endl;
 
+  Vec3b a = image.at<Vec3b>(0,0);
+
   return 0;
 }
