@@ -6,12 +6,8 @@ using namespace std;
 using namespace alglib;
 using namespace cv;
 
-void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat_<unsigned char>& ref_image, Mat_<unsigned char>& image, int width)
+void solve_one_channel(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
 {
-
-  if (z.size() != x.size())
-    throw invalid_argument("size x != size z");
-
   /*
   -----x----
   |
@@ -28,9 +24,27 @@ void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat_<unsign
 
   for(int i = 0; i < (int)z.size(); ++i)
   {
-    // Channel independence
-               
-  }  
+        
+  } 
+}
+
+void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
+{
+  Mat im_one_channel(image.size(), CV_8UC1);
+  Mat ref_one_channel(ref_image.size(), CV_8UC1);
+
+  for(int ichannel = 0; ichannel < 3; ++ichannel)
+  {
+    for(int irow = 0; irow < image.size().height; ++irow)
+    {
+      for(int icol = 0; icol < image.size().width; ++icol)
+      {
+        im_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
+        ref_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
+      }
+    }
+    solve_one_channel(z, x, ref_one_channel, im_one_channel, width);
+  } 
 }
 
 int main()
