@@ -1,7 +1,31 @@
 #include "solvers.h"
+#include "common.h"
+#include <stdexcept>
 
 using namespace std;
 using namespace alglib;
+
+void solve_opt(const vector<Point>& z, const vector<Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width)
+{
+  // Channel independence
+  if (z.size() != x.size())
+    throw invalid_argument("size x != size z");
+
+  /*
+  -----x----
+  |
+  y
+  |
+  */
+
+  real_2d_array fmatrix;
+  fmatrix.setlength(image.size().width, image.size().width);
+
+  for(int i = 0; i < (int)z.size(); ++i)
+  {
+        
+  }  
+}
 
 int main()
 {

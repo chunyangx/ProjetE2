@@ -10,3 +10,7 @@ double diff(const Vec3b& pa, const Vec3b& pb)
     res += (pa[i]-pb[i])*(pa[i]-pb[i]);
   return sqrt(res);
 }
+
+
+
+

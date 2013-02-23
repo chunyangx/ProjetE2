@@ -4,6 +4,7 @@
 #include <cmath>
 
 using namespace cv;
+using namespace std;
 
 double diff(const Vec3b& pa, const Vec3b& pb)
 {
@@ -31,6 +32,9 @@ int main(int argc, char** argv)
   waitKey();
 
   img(0,0) = Vec3b(0,255,0);
-  return 0;
 
+  cout << img.size().width << endl;
+  cout << img.size().height << endl;
+
+  return 0;
 }
