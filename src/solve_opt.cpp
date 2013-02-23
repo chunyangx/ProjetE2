@@ -7,6 +7,17 @@ using namespace std;
 using namespace alglib;
 using namespace cv;
 
+// For debug
+void print_channel(const Mat& image, int ichannel)
+{
+  for(int irow = 0; irow < image.size().height; ++irow)
+  {
+    for(int icol = 0; icol < image.size().width; ++icol)
+      cout << image.at<Vec3b>(irow, icol)[ichannel] << " ";
+    cout << endl;
+  }     
+}
+
 void init_2d_array(real_2d_array& A, int nrow, int ncol)
 {
   for(int i = 0; i < nrow; ++i)
@@ -80,7 +91,6 @@ void solve_one_channel(const vector<Point>& z, const vector<Point>& x, const Mat
   }  
 }
 
-
 void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
 {
   Mat im_one_channel(image.size(), CV_8UC1);
@@ -93,12 +103,12 @@ void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_im
       for(int icol = 0; icol < image.size().width; ++icol)
       {
         im_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
-        ref_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
+        ref_one_channel.at<unsigned char>(irow, icol) = ref_image.at<Vec3b>(irow, icol)[ichannel];
       }
     }
 
     solve_one_channel(z, x, ref_one_channel, im_one_channel, width);
-
+    
     // Combine the image of each channel to form the final one
     for(int irow = 0; irow < image.size().height; ++irow)
       for(int icol = 0; icol < image.size().width; ++icol)
