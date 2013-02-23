@@ -3,17 +3,11 @@
 #include <iostream>
 #include <cmath>
 
+#include "common.h"
+#include "solve_opt.h"
+
 using namespace cv;
 using namespace std;
-
-
-double diff(const Vec3b& pa, const Vec3b& pb)
-{
-  double res = 0;
-  for(int i = 0; i < 3; ++i)
-    res += (pa[i]-pb[i])*(pa[i]-pb[i]);
-  return sqrt(res);
-}
 
 int main(int argc, char** argv)
 {
@@ -26,18 +20,23 @@ int main(int argc, char** argv)
     return -1;
   }
 
+  // Image synthesized
+  Mat im(64, 64, CV_8UC3);
+
+  // Generate grid points
+  int w = 9;
+  vector<Point> gridPoints;
+  grid(gridPoints, w, image);
+
+  // Generate random initialization
+  vector<Point> randomPoints;
+  randomNH(randomPoints, w, image, gridPoints); 
+
+  solve_opt(randomPoints, gridPoints, image, im, w);
+
   namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
-
-  Mat_<Vec3b> img(64, 64);
-  imshow("Disply Image, syn_image", img);
-  waitKey();
-
-  img(0,0) = Vec3b(0,255,0);
-
-  cout << img.size().width << endl;
-  cout << img.size().height << endl;
-
-  Vec3b a = image.at<Vec3b>(0,0);
-
+  imshow("Dispaly Image, syn_image", im);
+  waitKey(0);
+ 
   return 0;
 }

@@ -22,10 +22,16 @@ void init_1d_array(real_1d_array& b, int length)
 
 void fill_patch(real_2d_array& A, real_1d_array& b, int img_width, const Point& im_point, const Point& ref_point, int width, const Mat& ref_image)
 {
+  /*
+  cout << "width " << width << endl;
+  cout << "im_point.x " << im_point.x << endl;
+  cout << "im_point.y " << im_point.y << endl;
+  */
+
   // A is diagonal
-  for(int i = im_point.x - width; i <= im_point.x + width; ++i)
+  for(int i = im_point.x - width/2; i <= im_point.x + width/2; ++i)
   {
-    for(int j = im_point.y - width; i <= im_point.x + width; ++i)
+    for(int j = im_point.y - width/2; i <= im_point.x + width/2; ++i)
     {
       A[j*img_width+i][j*img_width+i] += 1;
       b[j*img_width+i] = ref_image.at<unsigned char>(j,i);
@@ -51,12 +57,12 @@ void solve_one_channel(const vector<Point>& z, const vector<Point>& x, const Mat
   real_1d_array b;
   b.setlength(nb_pixels);
   init_1d_array(b, nb_pixels);
-
+  
   for(int i = 0; i < (int)x.size(); ++i)
   {
     fill_patch(A, b, image.size().width, x[i], z[i], width, ref_image); 
-  } 
-
+  }
+ 
   ae_int_t info = 1;
   densesolverlsreport rep;
   real_1d_array sol;
@@ -90,6 +96,7 @@ void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_im
         ref_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
       }
     }
+
     solve_one_channel(z, x, ref_one_channel, im_one_channel, width);
 
     // Combine the image of each channel to form the final one
@@ -97,30 +104,6 @@ void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_im
       for(int icol = 0; icol < image.size().width; ++icol)
         image.at<Vec3b>(irow, icol)[ichannel] = im_one_channel.at<unsigned char>(irow, icol);  
   }
-
 }
 
-int main()
-{
-  real_2d_array fmatrix;
-  fmatrix.setlength(2,2);
-  init_2d_array(fmatrix, 2, 2);
-  cout << fmatrix[0][0];
-  cout << fmatrix[0][1];
-  cout << fmatrix[1][0];
 
-  real_1d_array b;
-  b.setlength(2);
-  b[0] = 1;
-  b[1] = 2;
-
-  ae_int_t nrows = 2;
-  ae_int_t ncols = 2;
-
-  ae_int_t info = 1;
-  densesolverlsreport rep;
-  real_1d_array x;
-  x.setlength(2);
-
-  rmatrixsolvels(fmatrix, nrows, ncols, b, 0.0, info, rep, x);  
-}

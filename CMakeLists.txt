@@ -12,13 +12,11 @@ endif()
 # Additional included path
 include_directories(inc/)
 
-add_library(Solver src/alglibinternal.cpp src/alglibmisc.cpp src/ap.cpp src/linalg.cpp src/solvers.cpp)
-add_executable(Test src/solve_opt.cpp)
-target_link_libraries(Test Solver ${OpenCV_LIBS})
+file(GLOB allsrc "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+add_library(CommonLib ${allsrc})
 
-add_library(Common src/common.cpp)
 add_executable(TestNeighborhood src/testneighborhood.cpp)
-target_link_libraries(TestNeighborhood ${OpenCV_LIBS} Common)
+target_link_libraries(TestNeighborhood ${OpenCV_LIBS} CommonLib)
 
 add_executable(Texture_Synthesis Texture_synthesis.cpp)
-target_link_libraries(Texture_Synthesis ${OpenCV_LIBS})
+target_link_libraries(Texture_Synthesis ${OpenCV_LIBS} CommonLib)
