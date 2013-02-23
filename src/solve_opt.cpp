@@ -7,6 +7,33 @@ using namespace std;
 using namespace alglib;
 using namespace cv;
 
+void init_2d_array(real_2d_array& A, int nrow, int ncol)
+{
+  for(int i = 0; i < nrow; ++i)
+    for(int j = 0; j < ncol; ++j)
+      A[i][j] = 0;
+}
+
+void init_1d_array(real_1d_array& b, int length)
+{
+  for(int i = 0 ; i < length; ++i)
+    b[i] = 0;
+}
+
+void fill_patch(real_2d_array& A, real_1d_array& b, int img_width, const Point& im_point, const Point& ref_point, int width, const Mat& ref_image)
+{
+  // A is diagonal
+  for(int i = im_point.x - width; i <= im_point.x + width; ++i)
+  {
+    for(int j = im_point.y - width; i <= im_point.x + width; ++i)
+    {
+      A[j*img_width+i][j*img_width+i] += 1;
+      b[j*img_width+i] = ref_image.at<unsigned char>(j,i);
+    }
+  }
+   
+}
+
 void solve_one_channel(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
 {
   /*
@@ -19,14 +46,23 @@ void solve_one_channel(const vector<Point>& z, const vector<Point>& x, const Mat
   int nb_pixels = image.size().width*image.size().height;
   real_2d_array A;
   A.setlength(nb_pixels, nb_pixels);
+  init_2d_array(A, nb_pixels, nb_pixels);
 
   real_1d_array b;
   b.setlength(nb_pixels);
+  init_1d_array(b, nb_pixels);
 
-  for(int i = 0; i < (int)z.size(); ++i)
+  for(int i = 0; i < (int)x.size(); ++i)
   {
-     
+    fill_patch(A, b, image.size().width, x[i], z[i], width, ref_image); 
   } 
+
+  ae_int_t info = 1;
+  densesolverlsreport rep;
+  real_1d_array sol;
+  sol.setlength(nb_pixels);
+
+  rmatrixsolvels(A, nb_pixels, nb_pixels, b, 0.0, info, rep, sol);  
 }
 
 void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
@@ -52,6 +88,7 @@ int main()
 {
   real_2d_array fmatrix;
   fmatrix.setlength(2,2);
+  init_2d_array(fmatrix, 2, 2);
   cout << fmatrix[0][0];
   cout << fmatrix[0][1];
   cout << fmatrix[1][0];
