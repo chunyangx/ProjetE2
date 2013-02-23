@@ -52,3 +52,10 @@ Point nearestNH(const Point& p, const int& w, const Mat& imagea, const Mat& imag
   }
   return nNH;
 }
+
+void nearestNH(const vector<Point>& p, const int& w, const Mat& imagea, const Mat& imageb, vector<Point>& nNH)
+{
+  for(int k=0;k<p.size();++k){
+    nNH.push_back(nearestNH(p[k],w,imagea,imageb));
+  }
+}

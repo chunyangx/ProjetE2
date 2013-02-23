@@ -25,14 +25,16 @@ int main(int argc, char** argv)
   Point pixel(100,100);
   Point nn = nearestNH(pixel, 5, image, imagebis);
   printf("Nearest neighborhood of coordinates : %i %i\n",nn.x,nn.y);
-  printf("%f\n",diff_NH(pixel, pixel, image, imagebis, 5));
+  Point pixel2(100,150);
+  Point nn2 = nearestNH(pixel2, 5, image, imagebis);
+  printf("Nearest neighborhood of coordinates : %i %i\n",nn2.x,nn2.y);
+  vector<Point> pixel_vect;
+  pixel_vect.push_back(pixel);
+  pixel_vect.push_back(pixel2);
+  vector<Point> nn_vect;
+  nearestNH(pixel_vect, 5, image, imagebis,nn_vect);
+  printf("Nearest neighborhood of coordinates : %i %i\n",nn_vect[0].x,nn_vect[0].y);
+  printf("Nearest neighborhood of coordinates : %i %i\n",nn_vect[1].x,nn_vect[1].y);
 
-  /*vector<Vec3b> neighborH = neighborhood(pixel,8,image);
-  printf("%i\n",(int) neighborH.size());
-  for(int i=0;i<neighborH.size();i++){
-    for(int k=0;k<3;k++){
-      printf("%i\n",i);
-      printf("%u\n",neighborH[i][k]);
-    }
-  }*/
+
 }
