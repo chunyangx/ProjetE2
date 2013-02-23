@@ -5,11 +5,6 @@
 using namespace cv;
 using namespace std;
 
-PointTexture::PointTexture(int x, int y){
-  _x = x;
-  _y = y;
-}
-
 double diff(const Vec3b& pa, const Vec3b& pb)
 {
   double res = 0;
