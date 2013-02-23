@@ -1,6 +1,7 @@
 #include "solvers.h"
 #include "common.h"
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
 using namespace alglib;
@@ -24,7 +25,7 @@ void solve_one_channel(const vector<Point>& z, const vector<Point>& x, const Mat
 
   for(int i = 0; i < (int)z.size(); ++i)
   {
-        
+     
   } 
 }
 
@@ -51,8 +52,9 @@ int main()
 {
   real_2d_array fmatrix;
   fmatrix.setlength(2,2);
-  fmatrix[0][0] = 1;
-  fmatrix[1][1] = 1;
+  cout << fmatrix[0][0];
+  cout << fmatrix[0][1];
+  cout << fmatrix[1][0];
 
   real_1d_array b;
   b.setlength(2);
