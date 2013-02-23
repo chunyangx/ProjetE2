@@ -19,7 +19,7 @@ int main(int argc, char** argv)
   }
   
 
-  PointTexture pixel(100,100);
+  Point pixel(100,100);
 
   printf("%f\n",diff(image.at<Vec3b>(80,110),image.at<Vec3b>(120,100)));
 

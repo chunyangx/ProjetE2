@@ -13,12 +13,12 @@ double diff(const Vec3b& pa, const Vec3b& pb)
   return sqrt(res);
 }
 
-vector<Vec3b>  neighborhood(PointTexture pixel, const int w, Mat image)
+vector<Vec3b>  neighborhood(const Point& pixel, const int& w, const Mat& image)
 {
   vector<Vec3b> neighborH;
-  for(int x=pixel.x()-w/4; x<=pixel.x()+w/4; x++)
+  for(int x=pixel.x-w/4; x<=pixel.x+w/4; x++)
   {
-    for(int y=pixel.y()-w/4; y<=pixel.y()+w/4; y++){
+    for(int y=pixel.y-w/4; y<=pixel.y+w/4; y++){
         neighborH.push_back(image.at<Vec3b>(x,y));
     }
   }
