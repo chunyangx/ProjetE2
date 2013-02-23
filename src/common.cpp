@@ -40,6 +40,20 @@ vector<Vec3b>  neighborhood(const Point& pixel, const int& w, const Mat& image)
   return neighborH;
 }
 
+Point nearestNH(const Point& p, const int& w, const Mat& imagea, const vector<Point>& pb, const Mat& imageb)
+{
+  double minDist = numeric_limits<double>::max();
+  Point nNH(-1,-1);
+  for(int i=0;i<pb.size();++i){
+    double dist = diff_NH(p,pb[i],imagea,imageb,w);
+    if (dist<minDist){
+      minDist = dist;
+      nNH = pb[i];
+    }
+  }
+  return nNH;
+}
+
 Point nearestNH(const Point& p, const int& w, const Mat& imagea, const Mat& imageb)
 {
   double minDist = numeric_limits<double>::max();
@@ -76,6 +90,17 @@ void grid(vector<Point>& gridPoints, const int& w, const Mat& image)
   }
 }
 
+void allPoints(vector<Point>& gridPoints, const int& w, const Mat& image)
+{
+  gridPoints.clear();
+  for(int x=w/2;x<image.rows-w/2;x++){
+    for(int y=w/2;y<image.cols-w/2;y++){
+        Point xy(x,y);
+        gridPoints.push_back(xy);
+    }
+  }
+}
+
 void randomNH(vector<Point>& randomPoints, const int& w, const Mat& image, const vector<Point>& p)
 {
   randomPoints.clear();
@@ -90,3 +115,4 @@ void randomNH(vector<Point>& randomPoints, const int& w, const Mat& image, const
     randomPoints.push_back(xy);
   }
 }
+

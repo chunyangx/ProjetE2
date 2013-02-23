@@ -17,6 +17,9 @@ double diff_NH(const Point& pa, const Point& pb, const Mat& imagea, const Mat& i
 // Compute the neighborhood of a pixel in a given image (neigborhood of size (w+1)*(w+1)
 vector<Vec3b>  neighborhood(const Point& pixel, const int& w, const Mat& image);
 
+// Find the nearest neighborhood of a given one in a set of neighborhoods.
+Point nearestNH(const Point& p, const int& w, const Mat& imagea, const vector<Point>& pb, const Mat& imageb);
+
 // Find the nearest neighborhood in imageb (centered on the resulting Point) of the neighborhood defined by Point p and width w in imagea.
 Point nearestNH(const Point& p, const int& w, const Mat& imagea, const Mat& imageb);
 
@@ -25,6 +28,9 @@ void nearestNH(const vector<Point>& p, const int& w, const Mat& imagea, const Ma
 
 // Put in gridPoints the points of a grid of width w/4 in image.
 void grid(vector<Point>& gridPoints, const int& w, const Mat& image);
+
+// Returns the set of all possible neighborhood in the given image.
+void allPoints(vector<Point>& gridPoints, const int& w, const Mat& image);
 
 // Generate random neighborhoods for initialization.
 void randomNH(vector<Point>& randomPoints, const int& w, const Mat& ref_image, const vector<Point>& p);

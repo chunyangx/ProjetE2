@@ -18,5 +18,9 @@ add_library(CommonLib ${allsrc})
 add_executable(TestNeighborhood src/testneighborhood.cpp)
 target_link_libraries(TestNeighborhood ${OpenCV_LIBS} CommonLib)
 
+add_library(KMeans src/alglibinternal.cpp src/alglibmisc.cpp src/ap.cpp src/linalg.cpp src/solvers.cpp src/dataanalysis.cpp src/optimization.cpp src/specialfunctions.cpp src/statistics.cpp)
+add_executable(TestKMeans src/kmeans.cpp)
+target_link_libraries(TestKMeans ${OpenCV_LIBS} KMeans Common)
+
 add_executable(Texture_Synthesis Texture_synthesis.cpp)
 target_link_libraries(Texture_Synthesis ${OpenCV_LIBS} CommonLib)
