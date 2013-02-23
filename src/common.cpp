@@ -21,17 +21,34 @@ double diff_NH(const Point& pa, const Point& pb, const Mat& imagea, const Mat& i
 
   for(int i = 0; i < NHa.size(); ++i)
     res += diff(NHa[i],NHb[i]);
-  return sqrt(res);
+  return res;
 }
 
 vector<Vec3b>  neighborhood(const Point& pixel, const int& w, const Mat& image)
 {
   vector<Vec3b> neighborH;
-  for(int x=pixel.x-w/4; x<=pixel.x+w/4; x++)
+  for(int x=pixel.x-w/2; x<=pixel.x+w/2; x++)
   {
-    for(int y=pixel.y-w/4; y<=pixel.y+w/4; y++){
+    for(int y=pixel.y-w/2; y<=pixel.y+w/2; y++){
         neighborH.push_back(image.at<Vec3b>(x,y));
     }
   }
   return neighborH;
+}
+
+Point nearestNH(const Point& p, const int& w, const Mat& imagea, const Mat& imageb)
+{
+  double minDist = numeric_limits<double>::max();
+  Point nNH(-1,-1);
+  for(int x=w/2;x<imageb.rows-w/2;++x){
+    for(int y=w/2;y<imageb.cols-w/2;++y){
+        Point xy(x,y);
+        double dist = diff_NH(p,xy,imagea,imageb,w);
+        if (dist<minDist){
+          minDist = dist;
+          nNH = xy;
+        }
+    }
+  }
+  return nNH;
 }
