@@ -62,8 +62,18 @@ void solve_one_channel(const vector<Point>& z, const vector<Point>& x, const Mat
   real_1d_array sol;
   sol.setlength(nb_pixels);
 
-  rmatrixsolvels(A, nb_pixels, nb_pixels, b, 0.0, info, rep, sol);  
+  rmatrixsolvels(A, nb_pixels, nb_pixels, b, 0.0, info, rep, sol);
+
+  // Fill the image with solution(sol)
+  for(int i = 0; i < image.size().height; ++i)
+  {
+    for(int j = 0; j < image.size().width; ++j)
+    {
+      image.at<unsigned char>(i,j) = sol(i*image.size().width+j);
+    }
+  }  
 }
+
 
 void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
 {
@@ -81,7 +91,13 @@ void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_im
       }
     }
     solve_one_channel(z, x, ref_one_channel, im_one_channel, width);
-  } 
+
+    // Combine the image of each channel to form the final one
+    for(int irow = 0; irow < image.size().height; ++irow)
+      for(int icol = 0; icol < image.size().width; ++icol)
+        image.at<Vec3b>(irow, icol)[ichannel] = im_one_channel.at<unsigned char>(irow, icol);  
+  }
+
 }
 
 int main()
