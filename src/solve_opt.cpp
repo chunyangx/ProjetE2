@@ -31,28 +31,6 @@ void init_1d_array(real_1d_array& b, int length)
     b[i] = 0;
 }
 
-void fill_patch(real_2d_array& A, real_1d_array& b, int img_width, const Point& im_point, const Point& ref_point, int width, const Mat& ref_image)
-{
-  /*
-  cout << "width " << width << endl;
-  cout << "im_point.x " << im_point.x << endl;
-  cout << "im_point.y " << im_point.y << endl;
-  */
-
-  // A is diagonal
-  for(int i = im_point.x - width/2; i <= im_point.x + width/2; ++i)
-  {
-    for(int j = im_point.y - width/2; j <= im_point.y + width/2; ++j)
-    {
-      A[j*img_width+i][j*img_width+i] += 1;
-      b[j*img_width+i] = ref_image.at<unsigned char>(j,i);
-    }
-  }
-   
-}
-
-
-
 void solve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width){
   int nb_pixels = image.size().width*image.size().height;
   int image_height = image.size().height;
@@ -84,6 +62,27 @@ void solve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const
   }
 }
 
+void fill_patch(real_2d_array& A, real_1d_array& b, int img_width, const Point& im_point, const Point& ref_point, int width, const Mat& ref_image)
+{
+  /*
+  cout << "width " << width << endl;
+  cout << "im_point.x " << im_point.x << endl;
+  cout << "im_point.y " << im_point.y << endl;
+  */
+
+  // A is diagonal
+
+  // loop through rows
+  for(int icol = -width/2; icol <= width/2; ++icol)
+  {
+    for(int irow = -width/2; irow <= width/2; ++irow)
+    {
+      A[img_width*(im_point.y+icol)+im_point.x+irow][img_width*(im_point.y+icol)+im_point.x+irow] += 1;
+      b[img_width*(im_point.y+icol)+im_point.x+irow] += ref_image.at<unsigned char>(ref_point.x+irow,ref_point.y+icol);
+    }
+  }
+   
+}
 
 void solve_one_channel(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
 {
@@ -136,8 +135,8 @@ void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_im
       for(int icol = 0; icol < image.size().width; ++icol)
         im_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
 
-    for(int irow = 0; irow < image.size().height; ++irow)
-      for(int icol = 0; icol < image.size().width; ++icol)
+    for(int irow = 0; irow < ref_image.size().height; ++irow)
+      for(int icol = 0; icol < ref_image.size().width; ++icol)
         ref_one_channel.at<unsigned char>(irow, icol) = ref_image.at<Vec3b>(irow, icol)[ichannel];
 
     solve_one_channel(z, x, ref_one_channel, im_one_channel, width);

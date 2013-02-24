@@ -22,7 +22,7 @@ int main(int argc, char** argv)
   }
 
   //Image synthesized
-  Mat im(256, 256, CV_8UC3);
+  Mat im(64, 64, CV_8UC3);
 
   /*Mat im;
   im = imread(argv[2], 1);*/
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
   //for(int k=0;k<100;k++){
   printf("%d\n",k);
   z_old = z;
-  solve_opt_bis(z, x, image, im, w);
+  solve_opt(z, x, image, im, w);
 
   findTreeNNH(x, w, im, image, root, z);
   k++;
