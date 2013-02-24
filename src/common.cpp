@@ -11,20 +11,28 @@ using namespace std;
 
 int diff(const Vec3b& pa, const Vec3b& pb)
 {
-  double res = 0;
+  int res = 0;
   for(int i = 0; i < 3; ++i)
     res += (pa[i]-pb[i])*(pa[i]-pb[i]);
   return res;
 }
 
-int diff_NH(const Point& pa, const Point& pb, const Mat& imagea, const Mat& imageb, const int& w)
+double diff_NH(const Point& pa, const Point& pb, const Mat& imagea, const Mat& imageb, const int& w)
 {
-  double res = 0;
+  double gamma = w/2;
+  double res = 0.;
   vector<Vec3b> NHa = neighborhood(pa,w,imagea);
   vector<Vec3b> NHb = neighborhood(pb,w,imageb);
 
-  for(int i = 0; i < NHa.size(); ++i)
-    res += diff(NHa[i],NHb[i]);
+  int i = 0;
+  for(int x=-w/2; x<=w/2; x++)
+  {
+    for(int y=-w/2; y<=w/2; y++){
+      res += exp(-(x*x+y*y)/(2*gamma*gamma))*diff(NHa[i],NHb[i]);
+
+      i++;
+    }
+  }
   return res;
 }
 
