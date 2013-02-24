@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "common.h"
+#include "kmeans.h"
 #include "solve_opt.h"
 
 using namespace cv;
@@ -20,23 +21,36 @@ int main(int argc, char** argv)
     return -1;
   }
 
-  // Image synthesized
-  Mat im(64, 64, CV_8UC3);
+  //Image synthesized
+  Mat im(256, 256, CV_8UC3);
+
+  /*Mat im;
+  im = imread(argv[2], 1);*/
+
+  int w = 16;
+
+  vector<Point> NHz;
+  allPoints(NHz, w, image);
+  Node* root = constructTree(NHz, w, image);
 
   // Generate grid points
-  int w = 9;
-  vector<Point> gridPoints;
-  grid(gridPoints, w, image);
+  vector<Point> x;
+  grid(x, w, im);
 
   // Generate random initialization
-  vector<Point> randomPoints;
-  randomNH(randomPoints, w, image, gridPoints); 
+  vector<Point> z;
+  randomNH(z, w, image, x); 
 
-  solve_opt(randomPoints, gridPoints, image, im, w);
+  for(int k=0;k<100;k++){
+  printf("%d\n",k);
+  solve_opt_bis(z, x, image, im, w);
+
+  findTreeNNH(x, w, im, image, root, z);
 
   namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
   imshow("Dispaly Image, syn_image", im);
   waitKey(0);
+  }
  
   return 0;
 }

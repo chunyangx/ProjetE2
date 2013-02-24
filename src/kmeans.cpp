@@ -167,7 +167,6 @@ void findTreeNNH(const vector<Point>& pixel, const int& w, const Mat& imagea, co
 {
   NNH.clear();
   for(int i=0;i<pixel.size();i++){
-    printf("%d\n",i);
     vector<double> NH = neighborhood_vect(pixel[i], w, imagea);
     Node* node = find_node(NH, root);
     NNH.push_back(nearestNH(pixel[i], w, imagea, node->_points, imageb));
@@ -175,7 +174,7 @@ void findTreeNNH(const vector<Point>& pixel, const int& w, const Mat& imagea, co
 }
 
 
-int main(int argc, char** argv){
+int test_kmeans(int argc, char** argv){
 
   Mat image;
   image = imread(argv[1], 1);

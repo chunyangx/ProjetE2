@@ -42,7 +42,7 @@ void fill_patch(real_2d_array& A, real_1d_array& b, int img_width, const Point& 
   // A is diagonal
   for(int i = im_point.x - width/2; i <= im_point.x + width/2; ++i)
   {
-    for(int j = im_point.y - width/2; i <= im_point.x + width/2; ++i)
+    for(int j = im_point.y - width/2; j <= im_point.y + width/2; ++j)
     {
       A[j*img_width+i][j*img_width+i] += 1;
       b[j*img_width+i] = ref_image.at<unsigned char>(j,i);
@@ -50,6 +50,40 @@ void fill_patch(real_2d_array& A, real_1d_array& b, int img_width, const Point& 
   }
    
 }
+
+
+
+void solve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width){
+  int nb_pixels = image.size().width*image.size().height;
+  int image_height = image.size().height;
+  vector<int> X(nb_pixels);
+  int nb_pixels_ref = ref_image.size().width*ref_image.size().height;
+  vector<int> Z(nb_pixels);
+
+  for(int k = 0; k < x.size(); ++k)
+  {
+    for(int i = x[k].x - width/2; i <= x[k].x + width/2; ++i)
+    {
+      for(int j = x[k].y - width/2; j <= x[k].y + width/2; ++j)
+      {
+        X[i*image_height+j] += 1;
+        Z[i*image_height+j] += ref_image.at<unsigned char>(z[k].x +i-x[k].x,z[k].y+j-x[k].y);
+      }
+    }
+  }
+
+  for(int i = 0; i < image.size().width; ++i)
+  {
+    for(int j = 0; j < image.size().height; ++j)
+    {
+      int k = image_height*i+j;
+      if(X[k] != 0){
+        image.at<unsigned char>(i,j) = Z[k]/X[k];
+      }
+    }
+  }
+}
+
 
 void solve_one_channel(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
 {
@@ -115,5 +149,38 @@ void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_im
         image.at<Vec3b>(irow, icol)[ichannel] = im_one_channel.at<unsigned char>(irow, icol);  
   }
 }
+
+void solve_opt_bis(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
+{
+  Mat im_one_channel(image.size(), CV_8UC1);
+  Mat ref_one_channel(ref_image.size(), CV_8UC1);
+
+  for(int ichannel = 0; ichannel < 3; ++ichannel)
+  {
+    for(int irow = 0; irow < image.size().height; ++irow)
+    {
+      for(int icol = 0; icol < image.size().width; ++icol)
+      {
+        im_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
+      }
+    }
+
+    for(int irow = 0; irow < ref_image.size().height; ++irow)
+    {
+      for(int icol = 0; icol < ref_image.size().width; ++icol)
+      {
+        ref_one_channel.at<unsigned char>(irow, icol) = ref_image.at<Vec3b>(irow, icol)[ichannel];
+      }
+    }
+
+    solve_one_channel_bis(z, x, ref_one_channel, im_one_channel, width);
+    
+    // Combine the image of each channel to form the final one
+    for(int irow = 0; irow < image.size().width; ++irow)
+      for(int icol = 0; icol < image.size().height; ++icol)
+        image.at<Vec3b>(irow, icol)[ichannel] = im_one_channel.at<unsigned char>(irow, icol);  
+  }
+}
+
 
 
