@@ -133,13 +133,12 @@ void solve_opt(const vector<Point>& z, const vector<Point>& x, const Mat& ref_im
   for(int ichannel = 0; ichannel < 3; ++ichannel)
   {
     for(int irow = 0; irow < image.size().height; ++irow)
-    {
       for(int icol = 0; icol < image.size().width; ++icol)
-      {
         im_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
+
+    for(int irow = 0; irow < image.size().height; ++irow)
+      for(int icol = 0; icol < image.size().width; ++icol)
         ref_one_channel.at<unsigned char>(irow, icol) = ref_image.at<Vec3b>(irow, icol)[ichannel];
-      }
-    }
 
     solve_one_channel(z, x, ref_one_channel, im_one_channel, width);
     
