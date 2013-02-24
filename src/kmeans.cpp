@@ -137,7 +137,6 @@ Node* find_node(const vector<double>& NH, Node* root){
 
 void fill_tree(const vector<Point>& pixel, const int& w, const Mat& image, Node* root){
   for(int i=0;i<pixel.size();i++){
-    printf("%d\n",i);
     vector<double> NH = neighborhood_vect(pixel[i], w, image);
     Node* node = find_node(NH, root);
     node->_points.push_back(pixel[i]);

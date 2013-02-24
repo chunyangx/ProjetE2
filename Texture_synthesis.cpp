@@ -41,16 +41,21 @@ int main(int argc, char** argv)
   vector<Point> z;
   randomNH(z, w, image, x); 
 
-  for(int k=0;k<100;k++){
+  vector<Point> z_old;
+
+  int k=0;
+  while(!(z==z_old)){
+  //for(int k=0;k<100;k++){
   printf("%d\n",k);
+  z_old = z;
   solve_opt_bis(z, x, image, im, w);
 
   findTreeNNH(x, w, im, image, root, z);
-
+  k++;
+  }
   namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
   imshow("Dispaly Image, syn_image", im);
   waitKey(0);
-  }
  
   return 0;
 }
