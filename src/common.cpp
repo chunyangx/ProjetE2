@@ -119,5 +119,9 @@ void randomNH(vector<Point>& randomPoints, const int& w, const Mat& image, const
 void update_weights(const vector<Point>& x, const vector<Point>& z, int width, const Mat& im, const Mat& image, vector<double>& weights)
 {
   for(int i = 0; i < weights.size(); ++i)
-    weights[i] = diff_NH(x[i], z[i], im, image, width);   
+  {
+    double difference = diff_NH(x[i], z[i], im, image, width);
+    if (difference != 0)
+      weights[i] = pow(difference, -0.6);
+  }   
 }

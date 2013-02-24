@@ -10,6 +10,13 @@
 using namespace cv;
 using namespace std;
 
+template<typename T>
+void print_vec(const vector<T>& vec)
+{
+  for(int i = 0; i < vec.size(); ++i)
+    cout << vec[i] << endl;
+}
+
 int main(int argc, char** argv)
 {
   Mat image;
@@ -46,10 +53,10 @@ int main(int argc, char** argv)
   vector<double> weights(x.size(), 1);
 
   int k=0;
-  while(!(z==z_old)){
-  //for(int k=0;k<100;k++){
+  while(z!=z_old){
   printf("%d\n",k);
   z_old = z;
+  //solve_opt_bis(z, x, image, im, w);
   wsolve_opt_bis(z, x, image, im, w, weights);
 
   findTreeNNH(x, w, im, image, root, z);

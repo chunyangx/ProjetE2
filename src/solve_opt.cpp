@@ -35,7 +35,6 @@ void solve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const
   int nb_pixels = image.size().width*image.size().height;
   int image_height = image.size().height;
   vector<int> X(nb_pixels);
-  int nb_pixels_ref = ref_image.size().width*ref_image.size().height;
   vector<int> Z(nb_pixels);
 
   for(int k = 0; k < x.size(); ++k)
@@ -182,9 +181,8 @@ void solve_opt_bis(const vector<Point>& z, const vector<Point>& x, const Mat& re
 void wsolve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width, const vector<double>& weights){
   int nb_pixels = image.size().width*image.size().height;
   int image_height = image.size().height;
-  vector<int> X(nb_pixels);
-  int nb_pixels_ref = ref_image.size().width*ref_image.size().height;
-  vector<int> Z(nb_pixels);
+  vector<double> X(nb_pixels, 0);
+  vector<double> Z(nb_pixels, 0);
 
   for(int k = 0; k < x.size(); ++k)
   {
@@ -192,8 +190,8 @@ void wsolve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, cons
     {
       for(int j = x[k].y - width/2; j <= x[k].y + width/2; ++j)
       {
-        X[i*image_height+j] += weights[i*image_height+j];
-        Z[i*image_height+j] += weights[i*image_height+j]*ref_image.at<unsigned char>(z[k].x +i-x[k].x,z[k].y+j-x[k].y);
+        X[i*image_height+j] += weights[k];
+        Z[i*image_height+j] += weights[k]*ref_image.at<unsigned char>(z[k].x +i-x[k].x,z[k].y+j-x[k].y);
       }
     }
   }
