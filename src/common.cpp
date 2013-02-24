@@ -9,15 +9,15 @@
 using namespace cv;
 using namespace std;
 
-double diff(const Vec3b& pa, const Vec3b& pb)
+int diff(const Vec3b& pa, const Vec3b& pb)
 {
   double res = 0;
   for(int i = 0; i < 3; ++i)
     res += (pa[i]-pb[i])*(pa[i]-pb[i]);
-  return sqrt(res);
+  return res;
 }
 
-double diff_NH(const Point& pa, const Point& pb, const Mat& imagea, const Mat& imageb, const int& w)
+int diff_NH(const Point& pa, const Point& pb, const Mat& imagea, const Mat& imageb, const int& w)
 {
   double res = 0;
   vector<Vec3b> NHa = neighborhood(pa,w,imagea);
@@ -116,3 +116,8 @@ void randomNH(vector<Point>& randomPoints, const int& w, const Mat& image, const
   }
 }
 
+void update_weights(const vector<Point>& x, const vector<Point>& z, int width, const Mat& im, const Mat& image, vector<double>& weights)
+{
+  for(int i = 0; i < weights.size(); ++i)
+    weights[i] = diff_NH(x[i], z[i], im, image, width);   
+}

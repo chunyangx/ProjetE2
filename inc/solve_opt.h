@@ -13,4 +13,7 @@ void solve_opt(const std::vector<cv::Point>& z, const vector<cv::Point>& x, cons
 
 void solve_opt_bis(const std::vector<cv::Point>& z, const vector<cv::Point>& x, const Mat& ref_image, Mat& render_image, int width);
 
+void wsolve_opt_bis(const std::vector<cv::Point>& z, const vector<cv::Point>& x, const Mat& ref_image, Mat& render_image, int width, const std::vector<double>& weights);
+
+
 
