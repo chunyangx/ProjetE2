@@ -374,9 +374,10 @@ void solve_one_channel_basic(const vector<Point>& z, const vector<Point>& x, con
 
   for(int k = 0; k < x.size(); ++k)
   {
-    for(int icol = -width/2; icol <= + width/2; ++icol)
+
+    for(int icol = -width/2; icol < width/2; ++icol)
     {
-      for(int irow = -width/2; irow <= x[k].y + width/2; ++irow)
+      for(int irow = -width/2; irow < width/2; ++irow)
       {
         X[(icol+x[k].x)*image_height+x[k].y+irow] += 1;
         Z[(icol+x[k].x)*image_height+x[k].y+irow] += ref_image.at<unsigned char>(z[k].x+icol,z[k].y+irow);
