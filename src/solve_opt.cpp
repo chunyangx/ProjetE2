@@ -34,8 +34,9 @@ void init_1d_array(real_1d_array& b, int length)
 void solve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width){
   int nb_pixels = image.size().width*image.size().height;
   int image_height = image.size().height;
-  vector<int> X(nb_pixels);
-  vector<int> Z(nb_pixels);
+  vector<double> X(nb_pixels);
+  vector<double> Z(nb_pixels);
+  double gamma = width/2;
 
   for(int k = 0; k < x.size(); ++k)
   {
@@ -43,8 +44,11 @@ void solve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const
     {
       for(int j = x[k].y - width/2; j <= x[k].y + width/2; ++j)
       {
-        X[i*image_height+j] += 1;
-        Z[i*image_height+j] += ref_image.at<unsigned char>(z[k].x +i-x[k].x,z[k].y+j-x[k].y);
+        int x_NH = i - x[k].x;
+        int y_NH = j - x[k].y;
+        double gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma));
+        X[i*image_height+j] += gaussian_weight;
+        Z[i*image_height+j] += gaussian_weight*ref_image.at<unsigned char>(z[k].x +i-x[k].x,z[k].y+j-x[k].y);
       }
     }
   }
@@ -183,6 +187,7 @@ void wsolve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, cons
   int image_height = image.size().height;
   vector<double> X(nb_pixels, 0);
   vector<double> Z(nb_pixels, 0);
+  double gamma = width/2;
 
   for(int k = 0; k < x.size(); ++k)
   {
@@ -190,8 +195,11 @@ void wsolve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, cons
     {
       for(int j = x[k].y - width/2; j <= x[k].y + width/2; ++j)
       {
-        X[i*image_height+j] += weights[k];
-        Z[i*image_height+j] += weights[k]*ref_image.at<unsigned char>(z[k].x +i-x[k].x,z[k].y+j-x[k].y);
+        int x_NH = i - x[k].x;
+        int y_NH = j - x[k].y;
+        double gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma));
+        X[i*image_height+j] += weights[k]*gaussian_weight;
+        Z[i*image_height+j] += weights[k]*gaussian_weight*ref_image.at<unsigned char>(z[k].x +i-x[k].x,z[k].y+j-x[k].y);
       }
     }
   }

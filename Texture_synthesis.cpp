@@ -48,6 +48,7 @@ void main_loop(const Mat& texture_ref,Mat& texture,const int w, int& random_init
     printf("%d\n",k);
     z_old = z;
 
+    //solve_opt_bis(z, x, texture_ref, texture, w);
     wsolve_opt_bis(z, x, texture_ref, texture, w, weights);
     findTreeNNH(x, w, texture, texture_ref, root, z);
     update_weights(x, z, w, texture, texture_ref, weights);
@@ -97,7 +98,7 @@ int main(int argc, char** argv)
     for(int l=0;l<k+1;l++){
       w = w/2;
       printf("w : %d --------\n",w);
-      main_loop(texture_ref, texture, w, random_init);
+      main_loop(texture_ref_resize, texture, w, random_init);
 
       namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
       imshow("Dispaly Image, syn_image", texture);
