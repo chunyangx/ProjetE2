@@ -129,7 +129,11 @@ void update_weights(const vector<Point>& x, const vector<Point>& z, int width, c
   for(int i = 0; i < weights.size(); ++i)
   {
     double difference = diff_NH(x[i], z[i], im, image, width);
-    if (difference != 0)
-      weights[i] = pow(difference, -0.6);
+    double r = .8;
+    if (difference != 0){
+      weights[i] = pow(difference, (r-2.)/2.);
+    }else{
+      weights[i] = pow(exp(-1), (r-2.)/2.);
+    }
   }   
 }

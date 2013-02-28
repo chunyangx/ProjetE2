@@ -18,8 +18,5 @@ add_library(CommonLib ${allsrc})
 add_executable(TestNeighborhood src/testneighborhood.cpp)
 target_link_libraries(TestNeighborhood ${OpenCV_LIBS} CommonLib)
 
-add_executable(TestKMeans src/kmeans.cpp)
-target_link_libraries(TestKMeans ${OpenCV_LIBS} CommonLib)
-
 add_executable(Texture_Synthesis Texture_synthesis.cpp)
 target_link_libraries(Texture_Synthesis ${OpenCV_LIBS} CommonLib)

@@ -10,13 +10,23 @@ using namespace cv;
 using namespace std;
 using namespace alglib;
 
+//  Implementation of a k-mean tree structure to perform an approach NN search.
+
 class Node{
   public:
   Node();
   ~Node();
+  Node* getSon(int i);
+  int numberSon();
+  void addSon(Node* node);
+  void addCenterCoord(double d);
+  void addPoint(Point p);
+  vector<double>* getCenter();
+  vector<Point>* getPoints();
 
-  vector<Node*> _son;
-  vector<double> _center; 
+  private:
+  vector<Node*> _son; // Sons in the tree.
+  vector<double> _center; // Center of the cluster related to this node.
   vector<Point> _points; // Nonempty only for leaf nodes.
 };
 

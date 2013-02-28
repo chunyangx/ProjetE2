@@ -2,6 +2,7 @@
 #include <highgui.h>
 #include <iostream>
 #include <cmath>
+#include <string>
 
 #include "common.h"
 #include "kmeans.h"
@@ -62,8 +63,9 @@ int main(int argc, char** argv)
 {
   Mat texture_ref;
   texture_ref = imread(argv[1], 1);
+  string path(argv[2]);
 
-  if( argc != 2 || !texture_ref.data )
+  if( argc < 2 || !texture_ref.data )
   {
     printf( "No image data \n" );
     return -1;
@@ -83,14 +85,18 @@ int main(int argc, char** argv)
     resize(texture_ref, texture_ref_resize, Size(), scale, scale, INTER_LINEAR);
     resize(texture, texture, Size(), 2., 2., INTER_LINEAR);
 
-    namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
-    imshow("Dispaly Image, syn_image", texture_ref_resize);
+    //namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
+    //imshow("Dispaly Image, syn_image", texture_ref_resize);
+    //imwrite( path+"res"++""".jpg", texture_ref_resize);
     printf("Current texture of reference\n",scale);
-    waitKey(0);
-    namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
-    imshow("Dispaly Image, syn_image", texture);
+    //waitKey(0);
+    //namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
+    //imshow("Dispaly Image, syn_image", texture);
     printf("Current texture\n",scale);
-    waitKey(0);
+    //waitKey(0);
+
+    stringstream convertres;
+    convertres << k+1;
 
     scale = scale*2.;
     w_scale = 2*w_scale;
@@ -101,10 +107,13 @@ int main(int argc, char** argv)
       printf("w : %d --------\n",w);
       main_loop(texture_ref_resize, texture, w, random_init);
 
-      namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
-      imshow("Dispaly Image, syn_image", texture);
+      //namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
+      //imshow("Dispaly Image, syn_image", texture);
       printf("Current texture\n",scale);
-      waitKey(0);
+      stringstream convertw;
+      convertw << w;
+      imwrite( path+"_res"+convertres.str()+"_w"+convertw.str()+".jpg", texture);
+      //waitKey(0);
     }
   }
 
