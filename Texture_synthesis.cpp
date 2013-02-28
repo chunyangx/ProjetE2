@@ -30,20 +30,21 @@ void main_loop(const Mat& texture_ref,Mat& texture,const int w, int& random_init
   grid(x, w, texture);
 
   vector<Point> z;
+  vector<double> weights(x.size(), 1);
   if(random_init){
     // Generate random initialization
     randomNH(z, w, texture_ref, x);
     random_init = 0;
   }else{
     findTreeNNH(x, w, texture, texture_ref, root, z);
+    update_weights(x, z, w, texture, texture_ref, weights);
   }
 
   vector<Point> z_old;
 
-  vector<double> weights(x.size(), 1);
-
   int k=0;
-  while(z!=z_old){
+  int max_step = 100;
+  while(z!=z_old && k<max_step){
  
     printf("%d\n",k);
     z_old = z;

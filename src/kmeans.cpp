@@ -78,9 +78,9 @@ void kmeanTree(Node* node, real_2d_array xy, int min_size){
 vector<double> neighborhood_vect(const Point& pixel, const int& w, const Mat& image)
 {
   vector<double> NH;
-  for(int x=pixel.x-w/2; x<=pixel.x+w/2; x++)
+  for(int x=pixel.x-w/2; x<pixel.x+w/2; x++)
   {
-    for(int y=pixel.y-w/2; y<=pixel.y+w/2; y++){
+    for(int y=pixel.y-w/2; y<pixel.y+w/2; y++){
       for(int k=0;k<3;k++){
         NH.push_back((double) image.at<Vec3b>(x,y)[k]);
       }
@@ -95,9 +95,9 @@ real_2d_array neighborhood_array(const vector<Point>& pixel, const int& w, const
   NH.setlength(pixel.size(),(w+1)*(w+1)*3);
   for(int id=0;id<pixel.size();id++){
   int i = 0;
-  for(int x=pixel[id].x-w/2; x<=pixel[id].x+w/2; x++)
+  for(int x=pixel[id].x-w/2; x<pixel[id].x+w/2; x++)
   {
-    for(int y=pixel[id].y-w/2; y<=pixel[id].y+w/2; y++){
+    for(int y=pixel[id].y-w/2; y<pixel[id].y+w/2; y++){
       for(int k=0;k<3;k++){
         NH[id][i]=image.at<Vec3b>(x,y)[k];
         i++;

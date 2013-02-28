@@ -40,9 +40,9 @@ void solve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const
 
   for(int k = 0; k < x.size(); ++k)
   {
-    for(int i = x[k].x - width/2; i <= x[k].x + width/2; ++i)
+    for(int i = x[k].x - width/2; i < x[k].x + width/2; ++i)
     {
-      for(int j = x[k].y - width/2; j <= x[k].y + width/2; ++j)
+      for(int j = x[k].y - width/2; j < x[k].y + width/2; ++j)
       {
         int x_NH = i - x[k].x;
         int y_NH = j - x[k].y;
@@ -76,9 +76,9 @@ void fill_patch(real_2d_array& A, real_1d_array& b, int img_width, const Point& 
   // A is diagonal
 
   // loop through rows
-  for(int icol = -width/2; icol <= width/2; ++icol)
+  for(int icol = -width/2; icol < width/2; ++icol)
   {
-    for(int irow = -width/2; irow <= width/2; ++irow)
+    for(int irow = -width/2; irow < width/2; ++irow)
     {
       A[img_width*(im_point.y+icol)+im_point.x+irow][img_width*(im_point.y+icol)+im_point.x+irow] += 1;
       b[img_width*(im_point.y+icol)+im_point.x+irow] += ref_image.at<unsigned char>(ref_point.x+irow,ref_point.y+icol);
@@ -191,9 +191,9 @@ void wsolve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, cons
 
   for(int k = 0; k < x.size(); ++k)
   {
-    for(int i = x[k].x - width/2; i <= x[k].x + width/2; ++i)
+    for(int i = x[k].x - width/2; i < x[k].x + width/2; ++i)
     {
-      for(int j = x[k].y - width/2; j <= x[k].y + width/2; ++j)
+      for(int j = x[k].y - width/2; j < x[k].y + width/2; ++j)
       {
         int x_NH = i - x[k].x;
         int y_NH = j - x[k].y;
