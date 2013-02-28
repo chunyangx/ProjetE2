@@ -365,7 +365,7 @@ void solve_opt_grad(const std::vector<cv::Point>& z, const std::vector<cv::Point
   }
 }
 
-void solve_one_channel_basic(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width, const vector<double>& weights){
+void solve_one_channel_basic(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width){
   int nb_pixels = image.size().width*image.size().height;
   int image_height = image.size().height;
 
@@ -374,7 +374,6 @@ void solve_one_channel_basic(const vector<Point>& z, const vector<Point>& x, con
 
   for(int k = 0; k < x.size(); ++k)
   {
-
     for(int icol = -width/2; icol < width/2; ++icol)
     {
       for(int irow = -width/2; irow < width/2; ++irow)
@@ -396,7 +395,7 @@ void solve_one_channel_basic(const vector<Point>& z, const vector<Point>& x, con
   }
 }
 
-void solve_basic(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width, const std::vector<double>& weights)
+void solve_basic(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width)
 {
   Mat im_one_channel(image.size(), CV_8UC1);
   Mat ref_one_channel(ref_image.size(), CV_8UC1);
@@ -419,7 +418,7 @@ void solve_basic(const std::vector<cv::Point>& z, const std::vector<cv::Point>& 
       }
     }
 
-    solve_one_channel_basic(z, x, ref_one_channel, im_one_channel, width, weights);
+    solve_one_channel_basic(z, x, ref_one_channel, im_one_channel, width);
     
     // Combine the image of each channel to form the final one
     for(int irow = 0; irow < image.size().height; ++irow)
