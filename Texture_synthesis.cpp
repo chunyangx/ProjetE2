@@ -18,42 +18,54 @@ void print_vec(const vector<T>& vec)
     cout << vec[i] << endl;
 }
 
-
+// Main loop in the optimization process of the synthesis of a new texture
 void main_loop(const Mat& texture_ref,Mat& texture,const int w, int& random_init)
 {
-  // Compute all the neighborhood of picture image
+  // Compute all the neighborhood of the given texture (texture_ref)
   vector<Point> NHz;
   allPoints(NHz, w, texture_ref);
   Node* root = constructTree(NHz, w, texture_ref);
 
-  // Generate grid points
+  // Generate grid points x
   vector<Point> x;
   grid(x, w, texture);
 
+  // Points z related to x
   vector<Point> z;
+
+  // Weights for the IRLS
   vector<double> weights(x.size(), 1);
+
+  //randil_init == 1 only at the beginning of the whole process
   if(random_init){
-    // Generate random initialization
+    // Generate random initialization of z
     randomNH(z, w, texture_ref, x);
     random_init = 0;
   }else{
+    // Find the best possible neighborhoods z and update the weights
     findTreeNNH(x, w, texture, texture_ref, root, z);
     update_weights(x, z, w, texture, texture_ref, weights);
   }
 
+  // Needed for the stop criterion.
   vector<Point> z_old;
 
-  int k=0;
+  int k=0; //Number of iterations
   int max_step = 100;
-  while(z!=z_old && k<max_step){
+  while(z!=z_old && k<max_step){ //Continue until the neighborhoods in the reference texture don't change or we reach the max_step limit
  
-    printf("%d\n",k);
+    printf("Iteration : %d\n",k); // Print the iteration
     z_old = z;
 
-    //solve_opt_bis(z, x, texture_ref, texture, w);
+    // Optimize with respect to x
     wsolve_opt_bis(z, x, texture_ref, texture, w, weights);
+
+    // Optimize z (approximate nearest neighbor search using a kmeans tree)
     findTreeNNH(x, w, texture, texture_ref, root, z);
+
+    // Update the weights
     update_weights(x, z, w, texture, texture_ref, weights);
+
     k++;
   }
 }
@@ -61,62 +73,58 @@ void main_loop(const Mat& texture_ref,Mat& texture,const int w, int& random_init
 
 int main(int argc, char** argv)
 {
-  Mat texture_ref;
-  texture_ref = imread(argv[1], 1);
-  string path(argv[2]);
-
-  if( argc < 2 || !texture_ref.data )
+  // Check that the number of arguments is correct
+  if( argc < 3)
   {
-    printf( "No image data \n" );
+    printf("Wrong arguments.\n 'Texture_Synthesis image.ext repertory/' generates a new texture (256x256) for image.ext and save the generated textures in repertory/\n");
     return -1;
   }
+
+  // Load the reference texture image
+  Mat texture_ref;
+  texture_ref = imread(argv[1], 1);
+
+  // Path used for saving the generated textures
+  string path(argv[2]);
 
   //texture synthesized (at scale 1/8 in order to start the optimization)
   Mat texture(32, 32, CV_8UC3);
 
-  Mat texture_ref_resize;
+  Mat texture_ref_resize; // Will be the resized version of the reference texture
   float scale = 1./4.; //Current resolution on which we are working
   int random_init = 1; //1 if we have to init randomly z for the first step
   int w_scale = 8; //Size of w we start using at the current resolution (8 for 1/4, 16 for 1/2, 32 for 1)
   
    for(int k=0;k<3;k++) //Loop over the different resolutions.
    {
-    printf("resolution : %f --------\n",scale);
-    resize(texture_ref, texture_ref_resize, Size(), scale, scale, INTER_LINEAR);
-    resize(texture, texture, Size(), 2., 2., INTER_LINEAR);
+    printf("\nResolution : %f\n\n",scale);
 
-    //namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
-    //imshow("Dispaly Image, syn_image", texture_ref_resize);
-    //imwrite( path+"res"++""".jpg", texture_ref_resize);
-    printf("Current texture of reference\n",scale);
-    //waitKey(0);
-    //namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
-    //imshow("Dispaly Image, syn_image", texture);
-    printf("Current texture\n",scale);
-    //waitKey(0);
+    // Resize the textures
+    resize(texture_ref, texture_ref_resize, Size(), scale, scale, INTER_LINEAR); // Resize reference texture in texture_ref_resize
+    resize(texture, texture, Size(), 2., 2., INTER_LINEAR); // Resize the texture we are generating.
 
-    stringstream convertres;
-    convertres << k+1;
-
+    // Modify the scale and init w according to the current resolution
     scale = scale*2.;
     w_scale = 2*w_scale;
     int w = w_scale;
 
-    for(int l=0;l<k+1;l++){
-      w = w/2;
-      printf("w : %d --------\n",w);
+    stringstream convertres; //used in order to save the generated textures
+    convertres << k+1;
+
+    for(int l=0;l<k+1;l++){ // Loop over the w (width of the neighborhoods)
+      w = w/2; // new w
+      printf("New w : %d\n\n",w);
+
+      // Optimize the new texture for the current resolution and w
       main_loop(texture_ref_resize, texture, w, random_init);
 
-      //namedWindow( "Display Image", CV_WINDOW_AUTOSIZE);
-      //imshow("Dispaly Image, syn_image", texture);
-      printf("Current texture\n",scale);
-      stringstream convertw;
+      stringstream convertw; //used in order to save the generated textures
       convertw << w;
+
+      // Save the current generated texture
       imwrite( path+"_res"+convertres.str()+"_w"+convertw.str()+".jpg", texture);
-      //waitKey(0);
     }
   }
-
-
+  printf("done\n");
   return 0;
 }
