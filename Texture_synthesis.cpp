@@ -57,14 +57,11 @@ void main_loop(const Mat& texture_ref,Mat& texture,const int w, int& random_init
     printf("Iteration : %d\n",k); // Print the iteration
     z_old = z;
 
-    // Optimize with respect to x
-    wsolve_opt_bis(z, x, texture_ref, texture, w, weights);
-
-    // Optimize z (approximate nearest neighbor search using a kmeans tree)
+    //solve_opt_bis(z, x, texture_ref, texture, w);
+    //wsolve_opt_bis(z, x, texture_ref, texture, w, weights);
+    solve_basic(z, x, texture_ref, texture, w, weights);
     findTreeNNH(x, w, texture, texture_ref, root, z);
-
-    // Update the weights
-    update_weights(x, z, w, texture, texture_ref, weights);
+    //update_weights(x, z, w, texture, texture_ref, weights);
 
     k++;
   }
