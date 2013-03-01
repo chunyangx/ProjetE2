@@ -59,7 +59,8 @@ void main_loop(const Mat& texture_ref,Mat& texture,const int w, int& random_init
 
     //solve_opt_bis(z, x, texture_ref, texture, w);
     //wsolve_opt_bis(z, x, texture_ref, texture, w, weights);
-    solve_basic(z, x, texture_ref, texture, w);
+    //solve_basic(z, x, texture_ref, texture, w);
+    solve_opt_grad(z, x, texture_ref, texture, w, weights);
     findTreeNNH(x, w, texture, texture_ref, root, z);
     update_weights(x, z, w, texture, texture_ref, weights);
 

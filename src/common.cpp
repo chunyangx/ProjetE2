@@ -21,6 +21,23 @@ int diff(const Vec3b& pa, const Vec3b& pb)
 // Difference of two neighborhoods
 double diff_NH(const Point& pa, const Point& pb, const Mat& imagea, const Mat& imageb, const int& w)
 {
+  double res = 0.;
+  vector<Vec3b> NHa = neighborhood(pa,w,imagea);
+  vector<Vec3b> NHb = neighborhood(pb,w,imageb);
+
+  int i = 0;
+  for(int x=-w/2; x<w/2; x++)
+  {
+    for(int y=-w/2; y<w/2; y++){
+      res += diff(NHa[i],NHb[i]);
+      i++;
+    }
+  }
+  return res;
+}
+
+/*double diff_NH(const Point& pa, const Point& pb, const Mat& imagea, const Mat& imageb, const int& w)
+{
   double gamma = w/2;
   double res = 0.;
   vector<Vec3b> NHa = neighborhood(pa,w,imagea);
@@ -36,7 +53,7 @@ double diff_NH(const Point& pa, const Point& pb, const Mat& imagea, const Mat& i
     }
   }
   return res;
-}
+}*/
 
 // Compute the neighborhood of a pixel in a given image (neigborhood of size (w*w)
 vector<Vec3b>  neighborhood(const Point& pixel, const int& w, const Mat& image)
