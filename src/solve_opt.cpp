@@ -48,7 +48,7 @@ void init_1d_array(real_1d_array& b, int length)
     b[i] = 0;
 }
 
-void solve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width){
+void solve_one_channel_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width){
   int nb_pixels = image.size().width*image.size().height;
   int image_height = image.size().height;
 
@@ -86,7 +86,7 @@ void solve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const
   }
 }
 
-void solve_opt_bis(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
+void solve_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
 {
   Mat im_one_channel(image.size(), CV_8UC1);
   Mat ref_one_channel(ref_image.size(), CV_8UC1);
@@ -109,7 +109,7 @@ void solve_opt_bis(const vector<Point>& z, const vector<Point>& x, const Mat& re
       }
     }
 
-    solve_one_channel_bis(z, x, ref_one_channel, im_one_channel, width);
+    solve_one_channel_gaussian(z, x, ref_one_channel, im_one_channel, width);
     
     // Combine the image of each channel to form the final one
     for(int irow = 0; irow < image.size().height; ++irow)
@@ -118,7 +118,7 @@ void solve_opt_bis(const vector<Point>& z, const vector<Point>& x, const Mat& re
   }
 }
 
-void wsolve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width, const vector<double>& weights){
+void wsolve_one_channel_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width, const vector<double>& weights){
   int nb_pixels = image.size().width*image.size().height;
   int image_height = image.size().height;
   vector<double> X(nb_pixels, 0);
@@ -152,7 +152,7 @@ void wsolve_one_channel_bis(const vector<Point>& z, const vector<Point>& x, cons
   }
 }
 
-void wsolve_opt_bis(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width, const vector<double>& weights)
+void wsolve_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width, const vector<double>& weights)
 {
   Mat im_one_channel(image.size(), CV_8UC1);
   Mat ref_one_channel(ref_image.size(), CV_8UC1);
@@ -175,7 +175,7 @@ void wsolve_opt_bis(const vector<Point>& z, const vector<Point>& x, const Mat& r
       }
     }
 
-    wsolve_one_channel_bis(z, x, ref_one_channel, im_one_channel, width, weights);
+    wsolve_one_channel_gaussian(z, x, ref_one_channel, im_one_channel, width, weights);
     
     // Combine the image of each channel to form the final one
     for(int irow = 0; irow < image.size().height; ++irow)
@@ -184,7 +184,7 @@ void wsolve_opt_bis(const vector<Point>& z, const vector<Point>& x, const Mat& r
   }
 }
 
-void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width, const vector<double>& weights)
+void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
 {
   /*
   -----x----
@@ -207,6 +207,7 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
 
   for(int k = 0; k < x.size(); ++k)
   {
+    // Non gradient term
     for(int irow = x[k].x - width/2; irow < x[k].x + width/2; ++irow)
     {
       for(int icol = x[k].y - width/2; icol < x[k].y + width/2; ++icol)
@@ -221,6 +222,7 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
       }
     }
 
+    // Gradient term
     double mu = .1;
     for(int irow = x[k].x - width/2 +1; irow < x[k].x + width/2 -1; ++irow)
     {
@@ -231,7 +233,7 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
         double gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma));*/
         double gaussian_weight = 1.;
 
-
+        // X direction gradient
         sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow+1, mu*gaussian_weight);
         sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow-1, -mu*gaussian_weight);
         b[icol*image_rows+irow+1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)+1, z[k].y + (icol-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)-1, z[k].y + (icol-x[k].y)));
@@ -239,18 +241,18 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
         sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow-1, mu*gaussian_weight);
         sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow+1, -mu*gaussian_weight);
         b[icol*image_rows+irow-1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)-1, z[k].y + (icol-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)+1, z[k].y + (icol-x[k].y)));
-        
+      
+        // Y direction gradient
+        sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow+1, mu*gaussian_weight);
+        sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow+1, -mu*gaussian_weight);
+        b[icol*image_rows+irow+1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y)+1) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y)-1));
+
+        sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow-1, mu*gaussian_weight);
+        sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow-1, -mu*gaussian_weight);
+        b[icol*image_rows+irow+1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y)-1) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y)+1));
       }
     }
-
-
-
   }
-
-  //print_matrix(A, 20);
-  //print_array(b, 10);
-
-  //printf("startconvert");
 
   sparseconverttocrs(A);
   linlsqrstate s;
@@ -261,12 +263,9 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
 
   // solve the problem
   linlsqrcreate(nb_pixels, nb_pixels, s);
-  //printf("startsolve");
   linlsqrsolvesparse(s, A, b);
   linlsqrresults(s, sol, rep);
-  //printf("endsolve");
 
-  // print_array(sol, 20);
   // Fill the image with solution(sol)
   for(int irow = 0; irow < image.rows; ++irow)
   {
@@ -278,7 +277,7 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
   }   
 }
 
-void solve_opt_grad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width, const std::vector<double>& weights)
+void solve_grad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width)
 {
   printf("Optmize_grad\n");
   Mat im_one_channel(image.size(), CV_8UC1);
@@ -302,7 +301,7 @@ void solve_opt_grad(const std::vector<cv::Point>& z, const std::vector<cv::Point
       }
     }
 
-    solve_one_channel_grad(z, x, ref_one_channel, im_one_channel, width, weights);
+    solve_one_channel_grad(z, x, ref_one_channel, im_one_channel, width);
     
     // Combine the image of each channel to form the final one
     for(int irow = 0; irow < image.rows; ++irow)
@@ -373,3 +372,125 @@ void solve_basic(const std::vector<cv::Point>& z, const std::vector<cv::Point>& 
   }
 }
 
+void solve_one_channel_ggrad(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
+{
+  /*
+  -----x----
+  |
+  y
+  |
+  */
+
+  printf("Optmize\n");
+  int nb_pixels = image.size().width*image.size().height;
+  int image_rows = image.rows;
+ 
+  sparsematrix A;
+  sparsecreate(nb_pixels, nb_pixels, A);
+
+  real_1d_array b;
+  b.setlength(nb_pixels);
+  init_1d_array(b, nb_pixels);
+  double gamma = width/2;
+
+  for(int k = 0; k < x.size(); ++k)
+  {
+    // Non gradient term
+    for(int irow = x[k].x - width/2; irow < x[k].x + width/2; ++irow)
+    {
+      for(int icol = x[k].y - width/2; icol < x[k].y + width/2; ++icol)
+      {
+        int x_NH = irow - x[k].x;
+        int y_NH = icol - x[k].y;
+        double gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma));
+
+        sparseadd(A, icol*image_rows+irow, icol*image_rows+irow, gaussian_weight);
+        b[icol*image_rows+irow] += gaussian_weight*ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y));
+      }
+    }
+
+    // Gradient term
+    double mu = .1;
+    for(int irow = x[k].x - width/2 +1; irow < x[k].x + width/2 -1; ++irow)
+    {
+      for(int icol = x[k].y - width/2 +1; icol < x[k].y + width/2 -1; ++icol)
+      {
+        int x_NH = irow - x[k].x;
+        int y_NH = icol - x[k].y;
+        double gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma));
+
+        // X direction gradient
+        sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow+1, mu*gaussian_weight);
+        sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow-1, -mu*gaussian_weight);
+        b[icol*image_rows+irow+1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)+1, z[k].y + (icol-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)-1, z[k].y + (icol-x[k].y)));
+        
+        sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow-1, mu*gaussian_weight);
+        sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow+1, -mu*gaussian_weight);
+        b[icol*image_rows+irow-1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)-1, z[k].y + (icol-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)+1, z[k].y + (icol-x[k].y)));
+      
+        // Y direction gradient
+        sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow+1, mu*gaussian_weight);
+        sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow+1, -mu*gaussian_weight);
+        b[icol*image_rows+irow+1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y)+1) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y)-1));
+
+        sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow-1, mu*gaussian_weight);
+        sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow-1, -mu*gaussian_weight);
+        b[icol*image_rows+irow+1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y)-1) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y)+1));
+      }
+    }
+  }
+
+  sparseconverttocrs(A);
+  linlsqrstate s;
+  linlsqrreport rep;
+  real_1d_array sol;
+  sol.setlength(nb_pixels);
+  init_1d_array(sol, nb_pixels);
+
+  // solve the problem
+  linlsqrcreate(nb_pixels, nb_pixels, s);
+  linlsqrsolvesparse(s, A, b);
+  linlsqrresults(s, sol, rep);
+
+  // Fill the image with solution(sol)
+  for(int irow = 0; irow < image.rows; ++irow)
+  {
+    for(int icol = 0; icol < image.cols; ++icol)
+    {
+      int k = image_rows*icol+irow;
+      image.at<unsigned char>(irow,icol) = sol[k];
+    }
+  }   
+}
+
+void solve_ggrad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width)
+{
+  Mat im_one_channel(image.size(), CV_8UC1);
+  Mat ref_one_channel(ref_image.size(), CV_8UC1);
+
+  for(int ichannel = 0; ichannel < 3; ++ichannel)
+  {
+    for(int irow = 0; irow < image.rows; ++irow)
+    {
+      for(int icol = 0; icol < image.cols; ++icol)
+      {
+        im_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
+      }
+    }
+
+    for(int irow = 0; irow < ref_image.rows; ++irow)
+    {
+      for(int icol = 0; icol < ref_image.cols; ++icol)
+      {
+        ref_one_channel.at<unsigned char>(irow, icol) = ref_image.at<Vec3b>(irow, icol)[ichannel];
+      }
+    }
+
+    solve_one_channel_ggrad(z, x, ref_one_channel, im_one_channel, width);
+    
+    // Combine the image of each channel to form the final one
+    for(int irow = 0; irow < image.rows; ++irow)
+      for(int icol = 0; icol < image.cols; ++icol)
+        image.at<Vec3b>(irow, icol)[ichannel] = im_one_channel.at<unsigned char>(irow, icol);  
+  }
+}
