@@ -47,6 +47,7 @@ void main_loop(const Mat& texture_ref,Mat& texture,const int w, int& random_init
     update_weights(x, z, w, texture, texture_ref, weights);
   }
 
+
   // Needed for the stop criterion.
   vector<Point> z_old;
 
@@ -86,7 +87,7 @@ int main(int argc, char** argv)
   string path(argv[2]);
 
   //texture synthesized (at scale 1/8 in order to start the optimization)
-  Mat texture(32, 32, CV_8UC3);
+  Mat texture(16, 16, CV_8UC3);
 
   Mat texture_ref_resize; // Will be the resized version of the reference texture
   float scale = 1./4.; //Current resolution on which we are working

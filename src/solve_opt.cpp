@@ -192,9 +192,10 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
   y
   |
   */
-  printf("start");
+
+  printf("Optmize\n");
   int nb_pixels = image.size().width*image.size().height;
-  int image_height = image.size().height;
+  int image_rows = image.rows;
  
   sparsematrix A;
   sparsecreate(nb_pixels, nb_pixels, A);
@@ -206,24 +207,24 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
 
   for(int k = 0; k < x.size(); ++k)
   {
-    for(int i = x[k].x - width/2; i < x[k].x + width/2; ++i)
+    for(int irow = x[k].x - width/2; irow < x[k].x + width/2; ++irow)
     {
-      for(int j = x[k].y - width/2; j < x[k].y + width/2; ++j)
+      for(int icol = x[k].y - width/2; icol < x[k].y + width/2; ++icol)
       {
         /*int x_NH = i - x[k].x;
         int y_NH = j - x[k].y;
         double gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma));*/
         double gaussian_weight = 1.;
 
-        sparseadd(A, i*image_height+j, i*image_height+j, gaussian_weight);
-        b[i*image_height+j] += gaussian_weight*ref_image.at<unsigned char>(z[k].x + (i-x[k].x), z[k].y + (j-x[k].y));
+        sparseadd(A, icol*image_rows+irow, icol*image_rows+irow, gaussian_weight);
+        b[icol*image_rows+irow] += gaussian_weight*ref_image.at<unsigned char>(z[k].x + (irow-x[k].x), z[k].y + (icol-x[k].y));
       }
     }
 
-    int mu = 1;
-    for(int i = x[k].x - width/2 +1; i < x[k].x + width/2 -1; ++i)
+    double mu = .1;
+    for(int irow = x[k].x - width/2 +1; irow < x[k].x + width/2 -1; ++irow)
     {
-      for(int j = x[k].y - width/2 +1; j < x[k].y + width/2 -1; ++j)
+      for(int icol = x[k].y - width/2 +1; icol < x[k].y + width/2 -1; ++icol)
       {
         /*int x_NH = i - x[k].x;
         int y_NH = j - x[k].y;
@@ -231,24 +232,17 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
         double gaussian_weight = 1.;
 
 
-        sparseadd(A, i*image_height+j+1, i*image_height+j+1, mu*gaussian_weight);
-        sparseadd(A, i*image_height+j+1, i*image_height+j-1, -mu*gaussian_weight);
-        b[i*image_height+j+1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (i-x[k].x), z[k].y + (j+1-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (i-x[k].x), z[k].y + (j-1-x[k].y)));
+        sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow+1, mu*gaussian_weight);
+        sparseadd(A, icol*image_rows+irow+1, icol*image_rows+irow-1, -mu*gaussian_weight);
+        b[icol*image_rows+irow+1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)+1, z[k].y + (icol-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)-1, z[k].y + (icol-x[k].y)));
         
-        sparseadd(A, i*image_height+j-1, i*image_height+j-1, mu*gaussian_weight);
-        sparseadd(A, i*image_height+j-1, i*image_height+j+1, -mu*gaussian_weight);
-        b[i*image_height+j-1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (i-x[k].x), z[k].y + (j-1-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (i-x[k].x), z[k].y + (j+1-x[k].y)));
-      
-        sparseadd(A, (i+1)*image_height+j, (i+1)*image_height+j, mu*gaussian_weight);
-        sparseadd(A, (i+1)*image_height+j, (i-1)*image_height+j, -mu*gaussian_weight);
-        b[(i+1)*image_height+j] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (i+1-x[k].x), z[k].y + (j-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (i-1-x[k].x), z[k].y + (j-x[k].y)));
+        sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow-1, mu*gaussian_weight);
+        sparseadd(A, icol*image_rows+irow-1, icol*image_rows+irow+1, -mu*gaussian_weight);
+        b[icol*image_rows+irow-1] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)-1, z[k].y + (icol-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (irow-x[k].x)+1, z[k].y + (icol-x[k].y)));
         
-        sparseadd(A, (i-1)*image_height+j, (i-1)*image_height+j, mu*gaussian_weight);
-        sparseadd(A, (i-1)*image_height+j, (i+1)*image_height+j, -mu*gaussian_weight);
-        b[(i-1)*image_height+j] += mu*gaussian_weight*(ref_image.at<unsigned char>(z[k].x + (i-1-x[k].x), z[k].y + (j-x[k].y)) - ref_image.at<unsigned char>(z[k].x + (i+1-x[k].x), z[k].y + (j-x[k].y)));
-    
       }
     }
+
 
 
   }
@@ -274,74 +268,75 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
 
   // print_array(sol, 20);
   // Fill the image with solution(sol)
-  for(int i = 0; i < image.size().width; ++i)
+  for(int irow = 0; irow < image.rows; ++irow)
   {
-    for(int j = 0; j < image.size().height; ++j)
+    for(int icol = 0; icol < image.cols; ++icol)
     {
-      int k = image_height*i+j;
-      image.at<unsigned char>(i,j) = sol[k];
+      int k = image_rows*icol+irow;
+      image.at<unsigned char>(irow,icol) = sol[k];
     }
   }   
 }
 
 void solve_opt_grad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width, const std::vector<double>& weights)
 {
+  printf("Optmize_grad\n");
   Mat im_one_channel(image.size(), CV_8UC1);
   Mat ref_one_channel(ref_image.size(), CV_8UC1);
 
   for(int ichannel = 0; ichannel < 3; ++ichannel)
   {
-    for(int i = 0; i < image.size().width; ++i)
+    for(int irow = 0; irow < image.rows; ++irow)
     {
-      for(int j = 0; j < image.size().height; ++j)
+      for(int icol = 0; icol < image.cols; ++icol)
       {
-        im_one_channel.at<unsigned char>(i, j) = image.at<Vec3b>(i, j)[ichannel];
+        im_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
       }
     }
 
-    for(int i = 0; i < ref_image.size().width; ++i)
+    for(int irow = 0; irow < ref_image.rows; ++irow)
     {
-      for(int j = 0; j < ref_image.size().height; ++j)
+      for(int icol = 0; icol < ref_image.cols; ++icol)
       {
-        ref_one_channel.at<unsigned char>(i, j) = ref_image.at<Vec3b>(i, j)[ichannel];
+        ref_one_channel.at<unsigned char>(irow, icol) = ref_image.at<Vec3b>(irow, icol)[ichannel];
       }
     }
 
     solve_one_channel_grad(z, x, ref_one_channel, im_one_channel, width, weights);
     
     // Combine the image of each channel to form the final one
-    for(int i = 0; i < image.size().width; ++i)
-      for(int j = 0; j < image.size().height; ++j)
-        image.at<Vec3b>(i, j)[ichannel] = im_one_channel.at<unsigned char>(i, j);  
+    for(int irow = 0; irow < image.rows; ++irow)
+      for(int icol = 0; icol < image.cols; ++icol)
+        image.at<Vec3b>(irow, icol)[ichannel] = im_one_channel.at<unsigned char>(irow, icol);  
   }
 }
 
 void solve_one_channel_basic(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width){
   int nb_pixels = image.size().width*image.size().height;
-  int image_height = image.size().height;
+  int image_rows = image.rows;
 
   vector<double> X(nb_pixels, 0);
   vector<double> Z(nb_pixels, 0);
 
   for(int k = 0; k < x.size(); ++k)
   {
-    for(int icol = -width/2; icol < width/2; ++icol)
+    for(int irow = -width/2 + x[k].x; irow < width/2 + x[k].x; ++irow)
     {
-      for(int irow = -width/2; irow < width/2; ++irow)
+      for(int icol = -width/2 + x[k].y; icol < width/2 + x[k].y; ++icol)
       {
-        X[(icol+x[k].x)*image_height+x[k].y+irow] += 1;
-        Z[(icol+x[k].x)*image_height+x[k].y+irow] += ref_image.at<unsigned char>(z[k].x+icol,z[k].y+irow);
+        X[irow + icol*image_rows] += 1;
+        Z[irow + icol*image_rows] += ref_image.at<unsigned char>(z[k].x+(irow - x[k].x), z[k].y+(icol - x[k].y));
       }
     }
   }
 
-  for(int i = 0; i < image.size().width; ++i)
+  for(int irow = 0; irow < image.rows; ++irow)
   {
-    for(int j = 0; j < image.size().height; ++j)
+    for(int icol = 0; icol < image.cols; ++icol)
     {
-      int k = image_height*i+j;
+      int k = image_rows*icol+irow;
       if (X[k] != 0)
-        image.at<unsigned char>(i,j) = Z[k]/X[k];
+        image.at<unsigned char>(irow,icol) = Z[k]/X[k];
     }
   }
 }
@@ -353,17 +348,17 @@ void solve_basic(const std::vector<cv::Point>& z, const std::vector<cv::Point>& 
 
   for(int ichannel = 0; ichannel < 3; ++ichannel)
   {
-    for(int irow = 0; irow < image.size().height; ++irow)
+    for(int irow = 0; irow < image.rows; ++irow)
     {
-      for(int icol = 0; icol < image.size().width; ++icol)
+      for(int icol = 0; icol < image.cols; ++icol)
       {
         im_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
       }
     }
 
-    for(int irow = 0; irow < ref_image.size().height; ++irow)
+    for(int irow = 0; irow < ref_image.rows; ++irow)
     {
-      for(int icol = 0; icol < ref_image.size().width; ++icol)
+      for(int icol = 0; icol < ref_image.cols; ++icol)
       {
         ref_one_channel.at<unsigned char>(irow, icol) = ref_image.at<Vec3b>(irow, icol)[ichannel];
       }
@@ -372,8 +367,8 @@ void solve_basic(const std::vector<cv::Point>& z, const std::vector<cv::Point>& 
     solve_one_channel_basic(z, x, ref_one_channel, im_one_channel, width);
     
     // Combine the image of each channel to form the final one
-    for(int irow = 0; irow < image.size().height; ++irow)
-      for(int icol = 0; icol < image.size().width; ++icol)
+    for(int irow = 0; irow < image.rows; ++irow)
+      for(int icol = 0; icol < image.cols; ++icol)
         image.at<Vec3b>(irow, icol)[ichannel] = im_one_channel.at<unsigned char>(irow, icol);  
   }
 }

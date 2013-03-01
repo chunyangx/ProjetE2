@@ -142,7 +142,7 @@ void randomNH(vector<Point>& randomPoints, const int& w, const Mat& image, const
   int min_x = w/2;
   int min_y = w/2;
   int max_x = image.rows-w/2;
-  int max_y = image.cols-w/2; 
+  int max_y = image.cols-w/2;
 
   for(int k=0;k<p.size();++k){
     Point xy(rand()%(max_x-min_x)+min_x, rand()%(max_y-min_y)+min_y);
