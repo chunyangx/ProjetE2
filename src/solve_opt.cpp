@@ -92,7 +92,14 @@ void solve_one_channel_gaussian(const vector<Point>& z, const vector<Point>& x, 
   As the energy is quadratic in patch, E = |px-pz|^2
   For each patch, we apply a gaussian fall-off function with gaussian center the patch center, then, by giving the gradient expression equal to zero, we obtain:
     X[x,y] = (sum(gaussian(i)))*[gaussian(1)Z1+gaussian(2)Z2+...+gaussian(n)Zn], n the nearest neighbours of neighbour that contains pixels X[x,y], with gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma)), x_NH, y_NH the distance to the center of the patch
-  We could see that the gradient do not have crosses terms, so we calculate the above sum directly which gives O(n) complexity.   
+  We could see that the gradient do not have crosses terms, so we calculate the above sum directly which gives O(n) complexity.  
+
+  Parameters:
+    x: all the centers that we consider(we don't consider each pixel to be a center)
+    z: the corresponding nearest neighbours in the given texture of the points in x
+    ref_image: the given texture image
+    image: the image that we render
+    width: the width of patch that we considier, generally 8, 16, 32  
 */
 
 void solve_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width)
@@ -166,6 +173,14 @@ void wsolve_one_channel_gaussian(const vector<Point>& z, const vector<Point>& x,
   For each patch, we apply a gaussian fall-off function with gaussian center the patch center and here for a given patch, the function wsolve_gaussian implements an robust optimization process,  the energy is quadratic in patch becomes E = |px-pz|^0.8 instead of being quadratic. By giving the gradient expression equal to zero, we obtain:
     X[x,y] = (sum(gaussian(i)))*[gaussian(1)Z1+gaussian(2)Z2+...+gaussian(n)Zn], n the nearest neighbours of neighbour that contains pixels X[x,y], with gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma)), x_NH, y_NH the distance to the center of the patch
   We could see that the gradient do not have crosses terms, so we calculate the above sum directly which gives O(n) complexity.
+
+  Parameters:
+    x: all the centers that we consider(we don't consider each pixel to be a center)
+    z: the corresponding nearest neighbours in the given texture of the points in x
+    ref_image: the given texture image
+    image: the image that we render
+    width: the width of patch that we considier, generally 8, 16, 32 
+    weights: the weights attributed to each patch
 */
 
 void wsolve_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width, const vector<double>& weights)
@@ -312,6 +327,13 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
   The matrix A becomes 2 0 -2mu 
                          2 0 -2mu
                            2 0 -2mu etc.
+
+  Parameters:
+    x: all the centers that we consider(we don't consider each pixel to be a center)
+    z: the corresponding nearest neighbours in the given texture of the points in x
+    ref_image: the given texture image
+    image: the image that we render
+    width: the width of patch that we considier, generally 8, 16, 32 
 */
 
 void solve_grad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width)
@@ -383,7 +405,14 @@ void solve_one_channel_basic(const vector<Point>& z, const vector<Point>& x, con
   As the energy is quadratic in patch, E = |px-pz|^2
   By giving the gradient expression equal to zero, we obtain:
     X[x,y] = (1/n)*[Z1+Z2+...+Zn], n the nearest neighbours of neighbour that contains pixels X[x,y]
-  We could see that the gradient do not have crosses terms, so we calculate the above sum directly which gives O(n) complexity.    
+  We could see that the gradient do not have crosses terms, so we calculate the above sum directly which gives O(n) complexity.
+
+  Parameters:
+    x: all the centers that we consider(we don't consider each pixel to be a center)
+    z: the corresponding nearest neighbours in the given texture of the points in x
+    ref_image: the given texture image
+    image: the image that we render
+    width: the width of patch that we considier, generally 8, 16, 32   
 */
 
 void solve_basic(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width)
@@ -513,7 +542,14 @@ void solve_one_channel_ggrad(const vector<Point>& z, const vector<Point>& x, con
 /*
   The solve_ggrad function has the same structure as solve_grad.
   It adds gaussian fall-off function above solve_grad.
-  For reference, see function: solve_grad, solve_gaussian 
+  For reference, see function: solve_grad, solve_gaussian
+
+  Parameters:
+    x: all the centers that we consider(we don't consider each pixel to be a center)
+    z: the corresponding nearest neighbours in the given texture of the points in x
+    ref_image: the given texture image
+    image: the image that we render
+    width: the width of patch that we considier, generally 8, 16, 32  
 */
 
 void solve_ggrad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width)
