@@ -224,7 +224,6 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
   |
   */
 
-  printf("Optmize\n");
   int nb_pixels = image.size().width*image.size().height;
   int image_rows = image.rows;
  
@@ -338,7 +337,6 @@ void solve_one_channel_grad(const vector<Point>& z, const vector<Point>& x, cons
 
 void solve_grad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& image, int width)
 {
-  printf("Optmize_grad\n");
   Mat im_one_channel(image.size(), CV_8UC1);
   Mat ref_one_channel(ref_image.size(), CV_8UC1);
 
@@ -457,7 +455,6 @@ void solve_one_channel_ggrad(const vector<Point>& z, const vector<Point>& x, con
   |
   */
 
-  printf("Optmize\n");
   int nb_pixels = image.size().width*image.size().height;
   int image_rows = image.rows;
  
