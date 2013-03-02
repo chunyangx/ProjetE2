@@ -1,0 +1,358 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Texture synthesis
+\end_layout
+
+\begin_layout Author
+Loic Fagot-Bouquet, Chunyang Xiao
+\end_layout
+
+\begin_layout Section
+Implementation
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+~
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Optimization process
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+~
+\backslash
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note first that in implementation, we have considered RGB channels to be
+ independent and each channel takes the same weight.
+ So the optimization in three channels become the same to optimize the energy
+ respectively.
+ The codes are in C++.
+ For some of the optimization problems, we have used alglib.
+\end_layout
+
+\begin_layout Standard
+Let note a portion of generating image(8*8, 16*16, etc) a patch.
+ We define the basic energy to be the sum of the differences between all
+ possible patches in the generating images and its nearest neighbour in
+ the given texture:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+E_{t}(x,z)=\sum_{xp\in x}||xp-zp||^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $zp$
+\end_inset
+
+ denotes the nearest neighbour of 
+\begin_inset Formula $x_{p}$
+\end_inset
+
+ in the given texture 
+\begin_inset Formula $z$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+To optimize this energy, consider one pixel.
+ In the above sum, it is contained in some 
+\begin_inset Formula $xp$
+\end_inset
+
+, so when trying to minimize the above energy by taking the gradient of
+ above energy relative to this pixel equals to zero, we obtain the update
+ formula for each pixel:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+X(pixel_{i})=\frac{1}{n}\sum_{j=1}^{n}Z(pixel_{j})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $pixlel_{i}$
+\end_inset
+
+ and each 
+\begin_inset Formula $pixel_{j}$
+\end_inset
+
+ have the same local coordinate in a patch(they are corresponding pixels),
+ and as said before, the corresponding patch in 
+\begin_inset Formula $z$
+\end_inset
+
+ is the nearest neighbour of patch in 
+\begin_inset Formula $x$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Note that the above gradient don't have crossed terms.
+ (Each pixel could be solved independently).
+ So the complexity of this algorithm is O(n), with n the number of pixels
+ in the generating texture image.
+ It is implemented in the function 
+\series bold
+\shape italic
+solve_basic
+\series default
+\shape default
+ of src/solve_opt.cpp
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For each patch, instead of considering each pixel to have the same weights,
+ we could apply a gaussian fall-off function.
+ And the gradient formlua becomes:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+X(pixel_{i})=\frac{1}{\sum_{j=1}^{n}gaussian(pixel_{j})}Z(pixel_{j})*gaussian(pixel_{j})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the code, we take 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ of gaussian to be half of the width.
+ As in the basic optimization process, each pixel could be optimized independent
+ly, making the complexity O(n)
+\end_layout
+
+\begin_layout Standard
+This idea is implemented in the function 
+\series bold
+\shape italic
+solve_gaussian
+\series default
+\shape default
+ of src/solve_opt.cpp
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Another possible improvement, instead of considering the quadratic norm,
+ we consider the norm to be 
+\begin_inset Formula $||\ ||^{r}$
+\end_inset
+
+ with r set to be 0.8 in our practive.
+ We use IRLS to optimize the associated energy, and the gradient formula
+ becomes:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+X(pixel_{i})=\frac{1}{\sum_{j=1}^{n}weights(patch_{j})}Z(pixel_{j})*weights(patch_{j})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With the weights 
+\begin_inset Formula $=||xp-zp||^{r-2}$
+\end_inset
+
+ which is updated in each optimization round.
+\end_layout
+
+\begin_layout Standard
+The idea together with gaussian weights is implemented in the function 
+\series bold
+\shape italic
+wsolve_gaussian
+\series default
+\shape default
+ of src/solve_opt.cpp
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We could also add in the energy the gradient term, then 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+E_{t}(x,z)=\sum_{xp\in x}||xp-zp||^{2}+|Dx-Dz|^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In this case, every pixel could not be solved independently.
+ But the problem remains linear and we solve it using the alglib solver.
+ We have used sparsematrix and gradient conjugate to solve the problem,
+ so the complexity of our algorithm is O(
+\begin_inset Formula $n^{2}$
+\end_inset
+
+), with n the number of pixels in the generating texture image.
+\end_layout
+
+\begin_layout Standard
+There are two version of the algorithm, 
+\series bold
+\shape italic
+solve_grad
+\series default
+\shape default
+ of src/solve_opt.cpp, which simply adds the gradient term in the energy;
+ and 
+\series bold
+\shape italic
+solve_ggrad 
+\series default
+\shape default
+of src/solve_opt.cpp which integrates gaussian fall-off in the function.
+ We didn't add weights in the function as we consider it deriating the visual
+ effects of texture that we will explain in results section.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
