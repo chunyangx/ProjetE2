@@ -162,16 +162,16 @@ status open
 \begin_layout Standard
 Note first that in implementation, we have considered RGB channels to be
  independent and each channel takes the same weight.
- So the optimization in three channels become the same to optimize the energy
- respectively.
+ So the optimization in three channels becomes equivalent to optimize the
+ energy respectively for each channel.
  For some of the optimization problems, we have used alglib.
 \end_layout
 
 \begin_layout Standard
-Let note a portion of generating image (8*8, 16*16, etc) a patch.
+Let note a portion of a generated image (size 8*8, 16*16, etc) a patch.
  We define the basic energy to be the sum of the differences between all
- possible patches in the generating images and its nearest neighbour in
- the given texture:
+ possible patches in the generated images and its nearest neighbour in the
+ given texture:
 \end_layout
 
 \begin_layout Standard
@@ -255,7 +255,7 @@ where
 Note that the above gradient doesn't have crossed terms (each pixel could
  be solved independently).
  So the complexity of this algorithm is O(n), with n the number of pixels
- in the generating texture image.
+ in the generated texture image.
  It is implemented in the function 
 \series bold
 \shape italic
@@ -272,7 +272,7 @@ solve_basic
 \begin_layout Standard
 For each patch, instead of considering each pixel to have the same weights,
  we could apply a gaussian fall-off function g in every patch.
- And the gradient formlua becomes:
+ And the gradient formlua becomes :
 \end_layout
 
 \begin_layout Standard
@@ -312,11 +312,11 @@ solve_gaussian
 
 \begin_layout Standard
 Another possible improvement, instead of considering the quadratic norm,
- we consider the norm to be 
+ is to consider the norm to be 
 \begin_inset Formula $||\ ||^{r}$
 \end_inset
 
- with r set to be 0.8 in our practive.
+ with r set to be 0.8 in our experiments.
  We use IRLS to optimize the associated energy, and the gradient formula
  becomes:
 \end_layout
@@ -333,15 +333,16 @@ X(p_{i})\sum_{x_{p}/p_{i}\in x_{p}}^{n}weight(x_{p})=\sum_{x_{p}/p_{i}\in x_{p}}
 \end_layout
 
 \begin_layout Standard
-With the weights 
+with the weights 
 \begin_inset Formula $=||x_{p}-z_{p}||^{r-2}$
 \end_inset
 
- which is updated in each optimization round.
+ which are updated in each optimization round.
 \end_layout
 
 \begin_layout Standard
-The idea together with gaussian weights is implemented in the function 
+This idea together with gaussian weights is implemented in the function
+ 
 \series bold
 \shape italic
 wsolve_gaussian
@@ -377,24 +378,31 @@ In this case, every pixel could not be solved independently.
 \begin_inset Formula $n^{2}$
 \end_inset
 
-), with n the number of pixels in the generating texture image.
+), with n the number of pixels in the generated texture image.
 \end_layout
 
 \begin_layout Standard
-There are two versions of the algorithm, 
+There are three versions of the algorithm, 
 \series bold
 \shape italic
 solve_grad
 \series default
 \shape default
- of src/solve_opt.cpp, which simply adds the gradient term in the energy;
- and 
+ of src/solve_opt.cpp, which simply adds the gradient term in the energy,
+ 
 \series bold
 \shape italic
 solve_ggrad 
 \series default
 \shape default
-of src/solve_opt.cpp which integrates gaussian fall-off in the function.
+of src/solve_opt.cpp which integrates gaussian fall-off in the function and
+ 
+\series bold
+\shape italic
+wsolve_grad 
+\series default
+\shape default
+of src/solve_opt.cpp which also integrates the gaussian weights.
 \end_layout
 
 \begin_layout Standard
@@ -473,7 +481,7 @@ Each node of the tree is related to a set of neighborhoods
 \end_inset
 
  of this node into four clusters.
- Then, we add four new son nodes, one for each cluster.
+ Then, we add four new son nodes, one for each cluster found.
  We consider a node as a leaf node when its number of patches is below one
  percent of the original number of patches 
 \begin_inset Formula $(z_{p})$
@@ -481,8 +489,8 @@ Each node of the tree is related to a set of neighborhoods
 
 .
  Morevover, we keep into each node its cluster mean during this process,
- and keep only the neighborhoods into the leaf nodes (it is enough to retrieve
- an approximate nearest neighbor).
+ and keep only the neighborhoods into the leaf nodes (it is enough in order
+ to retrieve an approximate nearest neighbor).
 \end_layout
 
 \begin_layout Standard
@@ -502,7 +510,7 @@ To perform an approximate nearest neighbor search of a patch
 \begin_inset Formula $(z_{p})$
 \end_inset
 
- of this leave.
+ of this leaf.
 \end_layout
 
 \begin_layout Standard
@@ -535,7 +543,7 @@ od
 \begin_inset Formula $x_{p}$
 \end_inset
 
-, but not exactly the nearest one.
+, but not necessarely exactly the nearest one.
 \end_layout
 
 \begin_layout Standard
@@ -1585,14 +1593,14 @@ First, we can see that the methods used work well on regular or near-regular
  textures, but are not really able to deal with more stochastic textures.
  However, methods based on an energy function with a gradient term succeed
  better with stochastic textures.
- For the other textures, there is no important difference in the results
+ For the other textures, there is no significant difference in the results
  between gradient based and the other methods.
 \end_layout
 
 \begin_layout Standard
 Secondly, we can see on many generated textures that a same pattern covers
  a great part of the picture.
- For example, there is the red hearts in the irregular texture, the blue
+ For example, there are the red hearts in the irregular texture, the blue
  zone and the vertical lines in the near-stochastic one, and a brown pattern
  for the stochastic texture.
  But these patterns can correctly reduce the energy term for a specific
