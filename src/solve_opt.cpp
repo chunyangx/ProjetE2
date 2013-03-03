@@ -50,8 +50,8 @@ void init_1d_array(real_1d_array& b, int length)
 }
 
 void solve_one_channel_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width){
-  int nb_pixels = image.size().width*image.size().height;
-  int image_height = image.size().height;
+  int nb_pixels = image.rows*image.cols;
+  int image_height = image.rows;
 
   vector<double> X(nb_pixels);
   vector<double> Z(nb_pixels);
@@ -62,26 +62,26 @@ void solve_one_channel_gaussian(const vector<Point>& z, const vector<Point>& x, 
   // assign gaussian weights
   for(int k = 0; k < x.size(); ++k)
   {
-    for(int i = x[k].x - width/2; i < x[k].x + width/2; ++i)
+    for(int irow = x[k].x - width/2; irow < x[k].x + width/2; ++irow)
     {
-      for(int j = x[k].y - width/2; j < x[k].y + width/2; ++j)
+      for(int icol = x[k].y - width/2; icol < x[k].y + width/2; ++icol)
       {
-        int x_NH = i - x[k].x;
-        int y_NH = j - x[k].y;
+        int x_NH = irow - x[k].x;
+        int y_NH = icol - x[k].y;
         double gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma));
-        X[i*image_height+j] += gaussian_weight;
-        Z[i*image_height+j] += gaussian_weight*ref_image.at<unsigned char>(z[k].x +i-x[k].x,z[k].y+j-x[k].y);
+        X[icol*image_height+irow] += gaussian_weight;
+        Z[icol*image_height+irow] += gaussian_weight*ref_image.at<unsigned char>(z[k].x +irow-x[k].x,z[k].y+icol-x[k].y);
       }
     }
   }
 
-  for(int i = 0; i < image.size().width; ++i)
+  for(int irow = 0; irow < image.rows; ++irow)
   {
-    for(int j = 0; j < image.size().height; ++j)
+    for(int icol = 0; icol < image.cols; ++icol)
     {
-      int k = image_height*i+j;
+      int k = image_height*icol+irow;
       if(X[k] != 0){
-        image.at<unsigned char>(j,i) = Z[k]/X[k];
+        image.at<unsigned char>(irow,icol) = Z[k]/X[k];
       }
     }
   }
@@ -109,17 +109,17 @@ void solve_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& r
 
   for(int ichannel = 0; ichannel < 3; ++ichannel)
   {
-    for(int irow = 0; irow < image.size().height; ++irow)
+    for(int irow = 0; irow < image.rows; ++irow)
     {
-      for(int icol = 0; icol < image.size().width; ++icol)
+      for(int icol = 0; icol < image.cols; ++icol)
       {
         im_one_channel.at<unsigned char>(irow, icol) = image.at<Vec3b>(irow, icol)[ichannel];
       }
     }
 
-    for(int irow = 0; irow < ref_image.size().height; ++irow)
+    for(int irow = 0; irow < ref_image.rows; ++irow)
     {
-      for(int icol = 0; icol < ref_image.size().width; ++icol)
+      for(int icol = 0; icol < ref_image.cols; ++icol)
       {
         ref_one_channel.at<unsigned char>(irow, icol) = ref_image.at<Vec3b>(irow, icol)[ichannel];
       }
@@ -135,34 +135,35 @@ void solve_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& r
 }
 
 void wsolve_one_channel_gaussian(const vector<Point>& z, const vector<Point>& x, const Mat& ref_image, Mat& image, int width, const vector<double>& weights){
-  int nb_pixels = image.size().width*image.size().height;
-  int image_height = image.size().height;
+  int nb_pixels = image.cols*image.rows;
+  int image_height = image.rows;
+
   vector<double> X(nb_pixels, 0);
   vector<double> Z(nb_pixels, 0);
   double gamma = width/2;
 
   for(int k = 0; k < x.size(); ++k)
   {
-    for(int i = x[k].x - width/2; i < x[k].x + width/2; ++i)
+    for(int irow = x[k].x - width/2; irow < x[k].x + width/2; ++irow)
     {
-      for(int j = x[k].y - width/2; j < x[k].y + width/2; ++j)
+      for(int icol = x[k].y - width/2; icol < x[k].y + width/2; ++icol)
       {
-        int x_NH = i - x[k].x;
-        int y_NH = j - x[k].y;
+        int x_NH = irow - x[k].x;
+        int y_NH = icol - x[k].y;
         double gaussian_weight = exp(-(x_NH*x_NH+y_NH*y_NH)/(2*gamma*gamma));
-        X[i*image_height+j] += weights[k]*gaussian_weight;
-        Z[i*image_height+j] += weights[k]*gaussian_weight*ref_image.at<unsigned char>(z[k].x +i-x[k].x,z[k].y+j-x[k].y);
+        X[icol*image_height+irow] += weights[k]*gaussian_weight;
+        Z[icol*image_height+irow] += weights[k]*gaussian_weight*ref_image.at<unsigned char>(z[k].x +irow-x[k].x,z[k].y+icol-x[k].y);
       }
     }
   }
 
-  for(int i = 0; i < image.size().width; ++i)
+  for(int irow = 0; irow < image.rows; ++irow)
   {
-    for(int j = 0; j < image.size().height; ++j)
+    for(int icol = 0; icol < image.cols; ++icol)
     {
-      int k = image_height*i+j;
+      int k = image_height*icol+irow;
       if(X[k] != 0){
-        image.at<unsigned char>(j,i) = Z[k]/X[k];
+        image.at<unsigned char>(irow,icol) = Z[k]/X[k];
       }
     }
   }
