@@ -121,7 +121,7 @@ Note first that in implementation, we have considered RGB channels to be
 \end_layout
 
 \begin_layout Standard
-Let note a portion of generating image(8*8, 16*16, etc) a patch.
+Let note a portion of generating image (8*8, 16*16, etc) a patch.
  We define the basic energy to be the sum of the differences between all
  possible patches in the generating images and its nearest neighbour in
  the given texture:
@@ -130,7 +130,7 @@ Let note a portion of generating image(8*8, 16*16, etc) a patch.
 \begin_layout Standard
 \begin_inset Formula 
 \[
-E_{t}(x,z)=\sum_{xp\in x}||xp-zp||^{2}
+E_{t}(x,z)=\sum_{x_{^{p}}\in x}||x_{p}-z_{p}||^{2}
 \]
 
 \end_inset
@@ -139,10 +139,10 @@ E_{t}(x,z)=\sum_{xp\in x}||xp-zp||^{2}
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula $zp$
+\begin_inset Formula $z_{p}$
 \end_inset
 
- denotes the nearest neighbour of 
+ denotes the nearest neighbour of the patch 
 \begin_inset Formula $x_{p}$
 \end_inset
 
@@ -156,18 +156,22 @@ E_{t}(x,z)=\sum_{xp\in x}||xp-zp||^{2}
 \begin_layout Standard
 To optimize this energy, consider one pixel.
  In the above sum, it is contained in some 
-\begin_inset Formula $xp$
+\begin_inset Formula $x_{p}$
 \end_inset
 
 , so when trying to minimize the above energy by taking the gradient of
  above energy relative to this pixel equals to zero, we obtain the update
- formula for each pixel:
+ formula for each pixel 
+\begin_inset Formula $p_{i}$
+\end_inset
+
+:
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \[
-X(pixel_{i})=\frac{1}{n}\sum_{j=1}^{n}Z(pixel_{j})
+X(p_{i})\sum_{x_{p}/p_{i}\in x_{p}}^{n}1=\sum_{x_{p}/p_{i}\in x_{p}}^{n}z_{p}(p_{i,z_{p}})
 \]
 
 \end_inset
@@ -177,15 +181,19 @@ X(pixel_{i})=\frac{1}{n}\sum_{j=1}^{n}Z(pixel_{j})
 
 \begin_layout Standard
 where 
-\begin_inset Formula $pixlel_{i}$
+\begin_inset Formula $p_{i}$
 \end_inset
 
  and each 
-\begin_inset Formula $pixel_{j}$
+\begin_inset Formula $p_{i,z_{p}}$
 \end_inset
 
- have the same local coordinate in a patch(they are corresponding pixels),
- and as said before, the corresponding patch in 
+ have the same local coordinate in a patch (they  are corresponding pixels),
+ and as said before, the corresponding patch 
+\begin_inset Formula $z_{p}$
+\end_inset
+
+ in 
 \begin_inset Formula $z$
 \end_inset
 
@@ -216,14 +224,14 @@ solve_basic
 
 \begin_layout Standard
 For each patch, instead of considering each pixel to have the same weights,
- we could apply a gaussian fall-off function.
+ we could apply a gaussian fall-off function g in every patch.
  And the gradient formlua becomes:
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \[
-X(pixel_{i})=\frac{1}{\sum_{j=1}^{n}gaussian(pixel_{j})}Z(pixel_{j})*gaussian(pixel_{j})
+X(p_{i})\sum_{x_{p}/p_{i}\in x_{p}}^{n}g_{x_{p}}(p_{i})=\sum_{x_{p}/p_{i}\in x_{p}}^{n}g_{x_{p}}(p_{i})\times z_{p}(p_{i,z_{p}})
 \]
 
 \end_inset
@@ -269,7 +277,7 @@ Another possible improvement, instead of considering the quadratic norm,
 \begin_layout Standard
 \begin_inset Formula 
 \[
-X(pixel_{i})=\frac{1}{\sum_{j=1}^{n}weights(patch_{j})}Z(pixel_{j})*weights(patch_{j})
+X(p_{i})\sum_{x_{p}/p_{i}\in x_{p}}^{n}weight(x_{p})=\sum_{x_{p}/p_{i}\in x_{p}}^{n}weight(x_{p})\times z_{p}(p_{i,z_{p}})
 \]
 
 \end_inset
@@ -279,7 +287,7 @@ X(pixel_{i})=\frac{1}{\sum_{j=1}^{n}weights(patch_{j})}Z(pixel_{j})*weights(patc
 
 \begin_layout Standard
 With the weights 
-\begin_inset Formula $=||xp-zp||^{r-2}$
+\begin_inset Formula $=||x_{p}-z_{p}||^{r-2}$
 \end_inset
 
  which is updated in each optimization round.
@@ -306,7 +314,7 @@ We could also add in the energy the gradient term, then
 \begin_layout Standard
 \begin_inset Formula 
 \[
-E_{t}(x,z)=\sum_{xp\in x}||xp-zp||^{2}+|Dx-Dz|^{2}
+E_{t}(x,z)=\sum_{xp\in x}||x_{p}-z_{p}||^{2}+|Dx-Dz|^{2}
 \]
 
 \end_inset
@@ -342,6 +350,107 @@ solve_ggrad
 of src/solve_opt.cpp which integrates gaussian fall-off in the function.
  We didn't add weights in the function as we consider it deriating the visual
  effects of texture that we will explain in results section.
+\end_layout
+
+\begin_layout Subsection
+K-means tree
+\end_layout
+
+\begin_layout Standard
+In order to accelerate the nearest neighborhood search for each patch, we
+ implemented an approximate search based on a k-means tree (in kmeans.cpp,
+ using alglib for the kmeans step).
+ We explain here the construction of the tree :
+\end_layout
+
+\begin_layout Standard
+Each node of the tree is related to a set of neighborhoods 
+\begin_inset Formula $(z_{p})$
+\end_inset
+
+.
+ For each node, we perform a k-means clusterization to divide the set 
+\begin_inset Formula $(z_{p})$
+\end_inset
+
+ of this node into four clusters.
+ Then, we add four new son nodes, one for each cluster.
+ We consider a node as a leaf node when its number of patches is below one
+ percent of the original number of patches 
+\begin_inset Formula $(z_{p})$
+\end_inset
+
+.
+ Morevover, we keep into each node its cluster mean during this process,
+ and keep only the neighborhoods into the leaf nodes (it is enough to retrieve
+ an approximate nearest neighbor).
+\end_layout
+
+\begin_layout Standard
+To perform an approximate nearest neighbor search of a patch 
+\begin_inset Formula $x_{p}$
+\end_inset
+
+, we start at the root of the k-means tree.
+ We first look at the means of each son node, and select the one with the
+ nearest mean.
+ We continue this process until we reach a leaf node, and select the nearest
+ neighbor of 
+\begin_inset Formula $x_{p}$
+\end_inset
+
+ into the set of patches 
+\begin_inset Formula $(z_{p})$
+\end_inset
+
+ of this leave.
+\end_layout
+
+\begin_layout Standard
+This approximate search is really faster than the exact one (implemeneted
+ in common.cpp), and it seems correct to use an approximate search in this
+ problem as what is important in the optimization process is to find a neihborho
+od 
+\begin_inset Formula $z_{p}$
+\end_inset
+
+ which is close to 
+\begin_inset Formula $x_{p}$
+\end_inset
+
+, but not exactly the nearest one.
+\end_layout
+
+\begin_layout Subsection
+Diffficulties
+\end_layout
+
+\begin_layout Standard
+We had some small difficulties during the implementation.
+ The two mains difficulties were the following :
+\end_layout
+
+\begin_layout Enumerate
+The choice of some parameters.
+ For example, we have to choose a width for the gaussian fall-off function.
+ We take a width of 
+\begin_inset Formula $\frac{w}{2}$
+\end_inset
+
+ in order to have a minimal weight for pixels at the corners of the neighborhood
+ of 
+\begin_inset Formula $exp(-1)$
+\end_inset
+
+ (the fall-off function takes the value of 1 in the center of each neighborhood).
+\end_layout
+
+\begin_layout Enumerate
+We used alglib for the k-means tree and to solve the energy function (when
+ considering the gradient term).
+ However, the optimzation process doesn't always work when we tested it
+ on a Linux distribution (Ubutun 12.04), whereas there was no problem on
+ a Mac OS system.
 \end_layout
 
 \begin_layout Standard
