@@ -1438,6 +1438,22 @@ solve_ggrad
 \begin_inset Text
 
 \begin_layout Plain Layout
+wsolve_grad
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename results/gradient_w/square/_res3_w8.jpg
+	width 2.5cm
+	height 2.5cm
+
+\end_inset
+
 
 \end_layout
 
@@ -1447,6 +1463,13 @@ solve_ggrad
 \begin_inset Text
 
 \begin_layout Plain Layout
+\begin_inset Graphics
+	filename results/gradient_w/161/_res3_w8.jpg
+	width 2.5cm
+	height 2.5cm
+
+\end_inset
+
 
 \end_layout
 
@@ -1456,6 +1479,13 @@ solve_ggrad
 \begin_inset Text
 
 \begin_layout Plain Layout
+\begin_inset Graphics
+	filename results/gradient_w/532/_res3_w8.jpg
+	width 2.5cm
+	height 2.5cm
+
+\end_inset
+
 
 \end_layout
 
@@ -1465,15 +1495,13 @@ solve_ggrad
 \begin_inset Text
 
 \begin_layout Plain Layout
-
-\end_layout
+\begin_inset Graphics
+	filename results/gradient_w/S15/_res3_w8.jpg
+	width 2.5cm
+	height 2.5cm
 
 \end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
 
-\begin_layout Plain Layout
 
 \end_layout
 
@@ -1483,6 +1511,13 @@ solve_ggrad
 \begin_inset Text
 
 \begin_layout Plain Layout
+\begin_inset Graphics
+	filename results/gradient_w/S1/_res3_w8.jpg
+	width 2.5cm
+	height 2.5cm
+
+\end_inset
+
 
 \end_layout
 
@@ -1597,7 +1632,7 @@ status open
 \begin_layout Standard
 Therefore, the optimization process should be scale invariant in w, and
  it should be interesting to try to optimize the texture with different
- w at the same time instead of do that successively.
+ w at the same time instead of doing that successively.
 \end_layout
 
 \begin_layout Standard

@@ -58,11 +58,13 @@ void main_loop(const Mat& texture_ref,Mat& texture,const int w, int& random_init
     printf("Iteration : %d\n",k); // Print the iteration
     z_old = z;
 
-    //solve_opt_bis(z, x, texture_ref, texture, w);
-    //wsolve_opt_bis(z, x, texture_ref, texture, w, weights);
-    //solve_basic(z, x, texture_ref, texture, w);
-    wsolve_grad(z, x, texture_ref, texture, w, weights);
-    //wsolve_gaussian(z, x, texture_ref, texture, w, weights);
+    solve_basic(z, x, texture_ref, texture, w);  //Basic optimization
+    //solve_gaussian(z, x, texture_ref, texture, w);  //Basic optimization with gaussian fall-off function
+    //wsolve_gaussian(z, x, texture_ref, texture, w, weights); //Basic optimization with fall-off function and robust weights.
+    //solve_grad(z, x, texture_ref, texture, w); //Gradient based optimization
+    //solve_ggrad(z, x, texture_ref, texture, w); //Gradient based optimization with gaussian fall-off function
+    //wsolve_grad(z, x, texture_ref, texture, w, weights); //Gradient based optimization with fall-off function and robust weights.
+    
     findTreeNNH(x, w, texture, texture_ref, root, z);
     update_weights(x, z, w, texture, texture_ref, weights);
 

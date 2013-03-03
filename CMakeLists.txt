@@ -15,8 +15,5 @@ include_directories(inc/)
 file(GLOB allsrc "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_library(CommonLib ${allsrc})
 
-add_executable(TestNeighborhood src/testneighborhood.cpp)
-target_link_libraries(TestNeighborhood ${OpenCV_LIBS} CommonLib)
-
 add_executable(Texture_Synthesis Texture_synthesis.cpp)
 target_link_libraries(Texture_Synthesis ${OpenCV_LIBS} CommonLib)
