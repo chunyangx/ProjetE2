@@ -29,4 +29,6 @@ void solve_grad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x
 // Solve energy optimization problem with gradient in energy function and with gaussian weights, O(n^2), n the number of pixels in synthesized image 
 void solve_ggrad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& render_image, int width);
 
+// Solve energy optimization problem with gradient in energy function and different patch weights, O(n^2), n the number of pixels in synthesized image 
+void wsolve_grad(const std::vector<cv::Point>& z, const std::vector<cv::Point>& x, const cv::Mat& ref_image, cv::Mat& render_image, int width, const vector<double>& weights);
 
